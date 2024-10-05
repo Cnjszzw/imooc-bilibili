@@ -12,7 +12,7 @@ public class DemoService {
     private DemoDao demoDao;
 
     public Long query(Long id) {
-        return demoDao.query(id)  + 100;
+        return demoDao.query(id)  + 101;
     }
 
 }
