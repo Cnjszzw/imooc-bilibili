@@ -3,5 +3,7 @@
 
 <!-- namespace是要和实体类对应的接口一模一样的 -->
 <mapper namespace="com.imooc.bilibili.dao.DemoDao">
-
+    <select id="query" parameterType="java.lang.Long"  resultType="java.lang.Long">
+        select id from t_demo where id = #{id}
+    </select>
 </mapper>
