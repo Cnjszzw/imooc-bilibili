@@ -5,9 +5,11 @@
 <mapper namespace="com.imooc.bilibili.dao.UserDao">
 
     <select id="getUserByPhone" parameterType="String" resultType="com.imooc.bilibili.domain.User">
-        select * from t_user where phone = #{phone}
+        select *
+        from t_user
+        where phone = #{phone}
     </select>
-    
+
     <insert id="addUser" parameterType="com.imooc.bilibili.domain.User" useGeneratedKeys="true" keyProperty="id">
         insert into t_user
         (phone,
@@ -23,30 +25,120 @@
                 #{createTime},
                 #{updateTime})
     </insert>
-    
+
     <insert id="addUserInfo" parameterType="com.imooc.bilibili.domain.UserInfo">
-            insert into t_user_info
-                (userId,
-                 nick,
-                 gender,
-                 birth,
-                 createTime,
-                 updateTime)
-            values(#{userId},
-                   #{nick},
-                   #{gender},
-                   #{birth},
-                   #{createTime},
-                   #{updateTime})
+        insert into t_user_info
+        (userId,
+         nick,
+         gender,
+         birth,
+         createTime,
+         updateTime)
+        values (#{userId},
+                #{nick},
+                #{gender},
+                #{birth},
+                #{createTime},
+                #{updateTime})
     </insert>
-    
+
     <select id="getUserById" parameterType="java.lang.Long" resultType="com.imooc.bilibili.domain.User">
-        select * from t_user where id = #{id}
+        select *
+        from t_user
+        where id = #{id}
     </select>
 
     <select id="getUserInfoByUserId" parameterType="java.lang.Long" resultType="com.imooc.bilibili.domain.UserInfo">
-        select * from t_user_info where userId = #{userId}
+        select *
+        from t_user_info
+        where userId = #{userId}
+    </select>
+
+    <update id="updateUser" parameterType="com.imooc.bilibili.domain.User">
+        update t_user
+        set
+        <if test="phone != null and phone != ''">
+            phone = #{phone},
+        </if>
+        <if test="email != null and email != ''">
+            email = #{email},
+        </if>
+        <if test="password != null and password != ''">
+            password = #{password},
+        </if>
+        updateTime = #{updateTime}
+        where id = #{id}
+    </update>
+
+    <select id="getUserByPhoneOrEmail" parameterType="java.util.Map" resultType="com.imooc.bilibili.domain.User">
+        select * from t_user
+        where
+            1=1
+        <if test="phone != null and phone != ''">
+            and phone = #{phone}
+        </if>
+        <if test="email != null and email != ''">
+            and email = #{email}
+        </if>
     </select>
 
 
+    <update id="updateUserInfo" parameterType="com.imooc.bilibili.domain.UserInfo">
+        update t_user_info
+        set
+        <if test="nick != null and nick != ''">
+            nick = #{nick},
+        </if>
+        <if test="avatar != null">
+            avatar = #{avatar},
+        </if>
+        <if test="sign != null">
+            sign = #{sign},
+        </if>
+        <if test="gender != null and gender != ''">
+            gender = #{gender},
+        </if>
+        <if test="birth != null and birth != ''">
+            birth = #{birth},
+        </if>
+        updateTime = #{updateTime}
+        where userId = #{userId}
+    </update>
+
+
 </mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

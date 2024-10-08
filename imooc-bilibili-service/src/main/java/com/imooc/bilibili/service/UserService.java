@@ -63,13 +63,14 @@ public class UserService {
 
     public String login(User user) throws Exception {
         //1.对用户校验：校验手机号码，校验是否存在用户
-        String phone = user.getPhone();
-        if(StringUtils.isNullOrEmpty(phone)){
-            throw new ConditionException("手机号不能为空");
+        String phone = (user.getPhone() == null ? "" : user.getPhone());
+        String email = (user.getEmail() == null ? "" : user.getEmail());
+        if(StringUtils.isNullOrEmpty(phone) && StringUtils.isNullOrEmpty(email)){
+            throw new ConditionException("参数异常，手机号和邮箱参数都错误");
         }
-        User dbUser = userDao.getUserByPhone(phone);
+        User dbUser = userDao.getUserByPhoneOrEmail(phone,email);
         if (dbUser == null) {
-            throw new ConditionException("该手机号未注册");
+            throw new ConditionException("该手机号/邮箱未注册");
         }
         String password = user.getPassword();
         try {
@@ -90,6 +91,28 @@ public class UserService {
         UserInfo userInfo = userDao.getUserInfoByUserId(userId);
         user.setUserInfo(userInfo);
         return user;
+    }
+
+    public void updateUser(User user) throws Exception {
+        Long id = user.getId();
+        User dbUser = userDao.getUserById(id);
+        if(dbUser == null){
+            throw new ConditionException("用户不存在");
+        }
+        String rawPassword = user.getPassword();
+        if(!StringUtils.isNullOrEmpty(rawPassword)){
+            String password = RSAUtil.decrypt(rawPassword);
+            String salt = dbUser.getSalt();
+            String md5Password = MD5Util.sign(password, salt, "UTF-8");
+            user.setPassword(md5Password);
+        }
+        user.setUpdateTime(new Date());
+        userDao.updateUser(user);
+    }
+
+    public void updateUserInfo(UserInfo userInfo) {
+        userInfo.setUpdateTime(new Date());
+        userDao.updateUserInfo(userInfo);
     }
 }
 
