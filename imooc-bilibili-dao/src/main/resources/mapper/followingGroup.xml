@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace是要和实体类对应的接口一模一样的 -->
+<mapper namespace="com.imooc.bilibili.dao.FollowingGroupDao">
+
+    <select id="getByType" resultType="com.imooc.bilibili.domain.FollowingGroup">
+        select * from t_following_group
+                 where `type` = #{type}
+    </select>
+
+    <select id="getById" resultType="com.imooc.bilibili.domain.FollowingGroup">
+        select * from t_following_group
+                 where id = #{id}
+    </select>
+
+    <select id="getByUserId" resultType="com.imooc.bilibili.domain.FollowingGroup">
+        select * from t_following_group
+                 where userId = #{userId} or type in ('0' , '1' , '2')
+    </select>
+
+</mapper>

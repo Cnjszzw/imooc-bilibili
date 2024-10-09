@@ -32,7 +32,7 @@ public class UserInfo {
     //@Field(type = FieldType.Date)
     private Date updateTime;
 
-//    private Boolean followed;
+    private Boolean followed;
 //
 //    @Field(type = FieldType.Integer)
 //    private Integer fanCount;
@@ -109,13 +109,13 @@ public class UserInfo {
         this.updateTime = updateTime;
     }
 
-//    public Boolean getFollowed() {
-//        return followed;
-//    }
-//
-//    public void setFollowed(Boolean followed) {
-//        this.followed = followed;
-//    }
+    public Boolean getFollowed() {
+        return followed;
+    }
+
+    public void setFollowed(Boolean followed) {
+        this.followed = followed;
+    }
 //
 //    public Integer getFanCount() {
 //        return fanCount;

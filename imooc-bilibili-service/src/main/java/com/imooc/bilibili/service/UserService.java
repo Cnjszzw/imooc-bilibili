@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -113,6 +115,15 @@ public class UserService {
     public void updateUserInfo(UserInfo userInfo) {
         userInfo.setUpdateTime(new Date());
         userDao.updateUserInfo(userInfo);
+    }
+
+    public User getUserById(Long id) {
+        return userDao.getUserById(id);
+    }
+
+
+    public List<UserInfo> getUserInfoByIds(Set<Long> userFollowingsIds) {
+        return userDao.getUserInfoByIds(userFollowingsIds);
     }
 }
 

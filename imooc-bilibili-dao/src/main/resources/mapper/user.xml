@@ -81,8 +81,15 @@
             and email = #{email}
         </if>
     </select>
-
-
+    <select id="getUserInfoByIds" resultType="com.imooc.bilibili.domain.UserInfo">
+        select * from t_user_info
+        <where>
+            userId in
+            <foreach collection="userFollowingsIds" item="userFollowingsId" open="(" separator="," close=")">
+                #{userFollowingsId}
+            </foreach>
+        </where>
+    </select>
     <update id="updateUserInfo" parameterType="com.imooc.bilibili.domain.UserInfo">
         update t_user_info
         set
@@ -104,9 +111,14 @@
         updateTime = #{updateTime}
         where userId = #{userId}
     </update>
+    
+<!--    <select id="UserInfo" resultType="com.imooc.bilibili.domain.UserInfo">-->
+<!--        select * from t_user_info-->
+<!--            <foreach collection=""-->
+<!--    </select>-->
 
 
-</mapper>
+</mapper> 
 
 
 
