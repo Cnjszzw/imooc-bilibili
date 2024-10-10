@@ -133,6 +133,24 @@ public class UserFollowingService {
 
         return userFanFollowings;
     }
+
+    public Long addUserFollowingGroups(FollowingGroup followingGroup) {
+        followingGroupService.addFollowingGroup(followingGroup);
+        return followingGroup.getId();
+    }
+
+    public List<FollowingGroup> getUserFollowingGroups(Long userId) {
+        return followingGroupService.getByUserId(userId);
+    }
+
+    //获取用户关注列表（仅仅返回id集合）
+    public Set<Long> getUserFollowingIds(Long userId){
+        List<UserFollowing> userFollowings = userFollowingDao.getUserFollowings(userId);
+        Set<Long> userFollowingsIds = userFollowings.stream().map(UserFollowing::getFollowingId).collect(Collectors.toSet());
+        return userFollowingsIds;
+    }
+
+
 }
 
 

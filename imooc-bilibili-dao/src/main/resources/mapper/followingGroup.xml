@@ -4,6 +4,11 @@
 <!-- namespace是要和实体类对应的接口一模一样的 -->
 <mapper namespace="com.imooc.bilibili.dao.FollowingGroupDao">
 
+    <insert id="addFollowingGroup" useGeneratedKeys="true" keyProperty="id">
+        insert into t_following_group(userId , name , type , createTime , updateTime)
+        values (#{userId} , #{name} , #{type} , #{createTime} , #{updateTime})
+    </insert>
+
     <select id="getByType" resultType="com.imooc.bilibili.domain.FollowingGroup">
         select * from t_following_group
                  where `type` = #{type}

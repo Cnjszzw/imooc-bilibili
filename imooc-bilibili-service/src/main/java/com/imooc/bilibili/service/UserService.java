@@ -1,10 +1,9 @@
 package com.imooc.bilibili.service;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.imooc.bilibili.dao.UserDao;
-import com.imooc.bilibili.domain.JsonResponse;
-import com.imooc.bilibili.domain.User;
-import com.imooc.bilibili.domain.UserInfo;
+import com.imooc.bilibili.domain.*;
 import com.imooc.bilibili.domain.constant.UserConstant;
 import com.imooc.bilibili.domain.exception.ConditionException;
 import com.imooc.bilibili.service.util.MD5Util;
@@ -17,12 +16,16 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private UserFollowingService userFollowingService;
 
     public JsonResponse<String> addUser(User user) {
         //1.对传入的user进行校验，主要判断手机号的格式，并且判断没有注册过
@@ -124,6 +127,32 @@ public class UserService {
 
     public List<UserInfo> getUserInfoByIds(Set<Long> userFollowingsIds) {
         return userDao.getUserInfoByIds(userFollowingsIds);
+    }
+
+    public PageResult<UserInfo> pageListUserInfos(JSONObject params) {
+        Integer total = this.pageCountUserInfos(params);
+        PageResult<UserInfo> pageResult = new PageResult<>();
+        pageResult.setTotal(total);
+        if (total > 0) {
+            List<UserInfo> userInfos = userDao.pageListUserInfos(params);
+            Set<Long> UserFollowingIds = userFollowingService.getUserFollowingIds(Long.valueOf(params.getString("userId")));
+            for (UserInfo userInfo : userInfos) {
+                userInfo.setFollowed(false);
+            }
+            for (UserInfo userInfo : userInfos) {
+                for (Long userFollowingId : UserFollowingIds) {
+                    if (userInfo.getUserId().equals(userFollowingId))
+                        userInfo.setFollowed(true);
+                }
+            }
+            pageResult.setList(userInfos);
+        }
+        return pageResult;
+    }
+
+
+    public Integer pageCountUserInfos(JSONObject params) {
+        return userDao.pageCountUserInfos(params);
     }
 }
 

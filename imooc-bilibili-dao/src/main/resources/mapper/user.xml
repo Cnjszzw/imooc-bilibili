@@ -73,7 +73,7 @@
     <select id="getUserByPhoneOrEmail" parameterType="java.util.Map" resultType="com.imooc.bilibili.domain.User">
         select * from t_user
         where
-            1=1
+        1=1
         <if test="phone != null and phone != ''">
             and phone = #{phone}
         </if>
@@ -81,6 +81,7 @@
             and email = #{email}
         </if>
     </select>
+
     <select id="getUserInfoByIds" resultType="com.imooc.bilibili.domain.UserInfo">
         select * from t_user_info
         <where>
@@ -90,6 +91,7 @@
             </foreach>
         </where>
     </select>
+
     <update id="updateUserInfo" parameterType="com.imooc.bilibili.domain.UserInfo">
         update t_user_info
         set
@@ -111,11 +113,25 @@
         updateTime = #{updateTime}
         where userId = #{userId}
     </update>
-    
-<!--    <select id="UserInfo" resultType="com.imooc.bilibili.domain.UserInfo">-->
-<!--        select * from t_user_info-->
-<!--            <foreach collection=""-->
-<!--    </select>-->
+
+    <select id="pageCountUserInfos" resultType="java.lang.Integer">
+        select count(1) from t_user_info
+        where 1=1
+        <if test="nick != null and nick != ''">
+            and nick like concat('%',#{nick},'%')
+        </if>
+    </select>
+
+    <select id="pageListUserInfos" resultType="com.imooc.bilibili.domain.UserInfo">
+        select *
+        from t_user_info
+        <where>1=1
+            <if test="nick != null and nick != ''">
+                and nick like concat('%',#{nick},'%')
+            </if>
+        </where>
+        limit #{no} , #{size};
+    </select>
 
 
 </mapper> 

@@ -1,8 +1,10 @@
 package com.imooc.bilibili.api;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.imooc.bilibili.api.support.UserSupport;
 import com.imooc.bilibili.domain.JsonResponse;
+import com.imooc.bilibili.domain.PageResult;
 import com.imooc.bilibili.domain.User;
 import com.imooc.bilibili.domain.UserInfo;
 import com.imooc.bilibili.service.UserService;
@@ -62,6 +64,20 @@ public class UserApi {
         userInfo.setUserId(userId);
         userService.updateUserInfo(userInfo);
         return JsonResponse.success();
+    }
+
+
+    //根据姓名(可选)查询所有用户（1.显示是否关注过 2.要进行分页查询 3.同时返回一共有多少搜索出来的数量）
+    @GetMapping("/user-infos")
+    public JsonResponse<PageResult<UserInfo>> pageListUserInfos(@RequestParam Integer no, @RequestParam Integer size , @RequestParam(required = false) String nick){
+        Long userId = userSupport.getCurrentUserId();
+        JSONObject params = new JSONObject();
+        params.put("no",no);
+        params.put("size",size);
+        params.put("nick",nick);
+        params.put("userId",userId);
+        PageResult<UserInfo> result = userService.pageListUserInfos(params);
+        return new JsonResponse<>(result);
     }
 
 }

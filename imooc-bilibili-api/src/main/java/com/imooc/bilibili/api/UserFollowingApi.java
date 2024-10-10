@@ -2,15 +2,10 @@ package com.imooc.bilibili.api;
 
 
 import com.imooc.bilibili.api.support.UserSupport;
-import com.imooc.bilibili.domain.FollowingGroup;
-import com.imooc.bilibili.domain.JsonResponse;
-import com.imooc.bilibili.domain.UserFollowing;
+import com.imooc.bilibili.domain.*;
 import com.imooc.bilibili.service.UserFollowingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -48,4 +43,29 @@ public class UserFollowingApi {
         List<UserFollowing> result = userFollowingService.getUserFans(userId);
         return new JsonResponse<>(result);
     }
+
+    //新增用户分组
+    //要返回给前端新增的分组id，所以需要返回Long类型
+    @PostMapping("/user-following-groups")
+    public JsonResponse<Long> addUserFollowingGroups(@RequestBody FollowingGroup followingGroup){
+        Long userId = userSupport.getCurrentUserId();
+        followingGroup.setUserId(userId);
+        Long groupId = userFollowingService.addUserFollowingGroups(followingGroup);
+        return new JsonResponse<>(groupId);
+
+    }
+
+    //获取用户关注分组
+    @GetMapping("/user-following-groups")
+    public JsonResponse<List<FollowingGroup>> getUserFollowingGroups(){
+        Long userId = userSupport.getCurrentUserId();
+        List<FollowingGroup> result = userFollowingService.getUserFollowingGroups(userId);
+        return new JsonResponse<>(result);
+    }
+
+
+
+
+
+
 }
