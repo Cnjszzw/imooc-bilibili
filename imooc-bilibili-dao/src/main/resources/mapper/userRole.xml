@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace是要和实体类对应的接口一模一样的 -->
+<mapper namespace="com.imooc.bilibili.dao.UserRoleDao">
+    
+    <resultMap id="RoleElementOperationResult" type="com.imooc.bilibili.domain.auth.AuthRoleElementOperation">
+        <id column="id" property="id"/>
+        <id column="roleId" property="roleId"/>
+        <id column="elementOperationId" property="elementOperationId"/>
+        <result column="createTime" property="createTime"/>
+        <association property="authElementOperation" javaType="com.imooc.bilibili.domain.auth.AuthElementOperation">
+            <id column="elementName" property="elementName"/>
+            <id column="elementCode" property="elementCode"/>
+            <id column="operationType" property="operationType"/>
+        </association>
+    </resultMap>
+    
+    <resultMap id="RoleMenuResult" type="com.imooc.bilibili.domain.auth.AuthRoleMenu">
+        <id column="id" property="id"/>
+        <id column="roleId" property="roleId"/>
+        <id column="menuId" property="menuId"/>
+        <id column="createTime" property="createTime"/>
+        <association property="authMenu" javaType="com.imooc.bilibili.domain.auth.AuthMenu">
+            <id column="name" property="name"/>
+            <id column="code" property="code"/>
+        </association>
+    </resultMap>
+
+    <select id="getUserRoleListByUserId" resultType="com.imooc.bilibili.domain.auth.UserRole">
+        select ur.*, ar.name as roleName, ar.code as roleCode
+        from t_user_role ur
+                 left join t_auth_role ar
+                           on ur.roleId = ar.id
+        where ur.userId = #{userId}
+    </select>
+
+    <select id="getRoleElementOperationList" resultMap="RoleElementOperationResult">
+        select areo.* , aeo.elementName, aeo.elementCode, aeo.operationType
+        from t_auth_role_element_operation areo left join t_auth_element_operation aeo
+        on areo.elementOperationId = aeo.id
+        where areo.roleId in 
+        <foreach collection="userRoleUserRoleIdList" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </select>
+
+    <select id="getRoleMenuList" resultMap="RoleMenuResult">
+        select arm.*, am.name, am.code
+        from t_auth_role_menu arm left join t_auth_menu am
+        on arm.menuId = am.id
+        where arm.roleId in
+        <foreach collection="userRoleUserRoleIdList" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </select>
+
+
+</mapper>
