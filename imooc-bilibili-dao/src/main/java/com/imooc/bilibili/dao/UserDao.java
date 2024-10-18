@@ -1,14 +1,12 @@
 package com.imooc.bilibili.dao;
 
 import com.alibaba.fastjson.JSONObject;
-import com.imooc.bilibili.domain.JsonResponse;
-import com.imooc.bilibili.domain.PageResult;
-import com.imooc.bilibili.domain.User;
-import com.imooc.bilibili.domain.UserInfo;
+import com.imooc.bilibili.domain.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,4 +35,12 @@ public interface UserDao {
     Integer pageCountUserInfos(Map<String,Object> params);
 
     List<UserInfo> pageListUserInfos(Map<String,Object> params);
+
+    Integer deleteRefreshToken(String refreshToken);
+
+    Integer addRefreshToken(@Param("refreshToken") String refreshToken,
+                            @Param("userId")Long userId,
+                            @Param("createTime")Date createTime);
+
+    RefreshTokenDetail getRefreshTokenDetailByRefreshToken(String refreshToken);
 }

@@ -12,10 +12,9 @@ import com.imooc.bilibili.service.util.TokenUtil;
 import com.mysql.cj.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -158,6 +157,63 @@ public class UserService {
 
     public Integer pageCountUserInfos(JSONObject params) {
         return userDao.pageCountUserInfos(params);
+    }
+
+    @Transactional
+    public Map<String, Object> loginForDts(User user) throws Exception {
+        //1.对用户校验：校验手机号码，校验是否存在用户
+        String phone = (user.getPhone() == null ? "" : user.getPhone());
+        String email = (user.getEmail() == null ? "" : user.getEmail());
+        if(StringUtils.isNullOrEmpty(phone) && StringUtils.isNullOrEmpty(email)){
+            throw new ConditionException("参数异常，手机号和邮箱参数都错误");
+        }
+        User dbUser = userDao.getUserByPhoneOrEmail(phone,email);
+        if (dbUser == null) {
+            throw new ConditionException("该手机号/邮箱未注册");
+        }
+        String password = user.getPassword();
+        try {
+            String rawPassword = RSAUtil.decrypt(password);
+            String md5PassWord = MD5Util.sign(rawPassword, dbUser.getSalt(), "UTF-8");
+            if(!md5PassWord.equals(dbUser.getPassword())){
+                throw new ConditionException("密码错误");
+            }
+        } catch (Exception e) {
+            throw new ConditionException("解密错误");
+        }
+        Long userId = dbUser.getId();
+        String acessToken = TokenUtil.generateToken(userId);
+        String refreshToken = TokenUtil.generateRefreshToken(userId);
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("accessToken", acessToken);
+        result.put("refreshToken", refreshToken);
+        deleteRefreshToken(refreshToken);
+        addRefreshToken(refreshToken,userId,new Date());
+        return result;
+    }
+
+
+    public void deleteRefreshToken(String refreshToken) {
+        userDao.deleteRefreshToken(refreshToken);
+    }
+
+    public void addRefreshToken(String refreshToken, Long userId,Date createTime) {
+        userDao.addRefreshToken(refreshToken, userId,createTime);
+    }
+
+    public void logout(String refreshToken, Long userId) {
+        deleteRefreshToken(refreshToken);
+    }
+
+    public String getrefreshedAccessToken(String refreshToken) throws Exception {
+        userDao.getRefreshTokenDetailByRefreshToken(refreshToken);
+        if (refreshToken == null) {
+            throw new ConditionException("555","token过期");
+        }
+        if (TokenUtil.verifyToken(refreshToken) == null) {
+            throw new ConditionException("555","token过期");
+        }
+        return TokenUtil.generateToken(TokenUtil.verifyToken(refreshToken));
     }
 }
 

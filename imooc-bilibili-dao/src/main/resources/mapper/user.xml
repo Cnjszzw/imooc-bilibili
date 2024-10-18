@@ -4,6 +4,7 @@
 
 <mapper namespace="com.imooc.bilibili.dao.UserDao">
 
+
     <select id="getUserByPhone" parameterType="String" resultType="com.imooc.bilibili.domain.User">
         select *
         from t_user
@@ -41,6 +42,7 @@
                 #{createTime},
                 #{updateTime})
     </insert>
+
 
     <select id="getUserById" parameterType="java.lang.Long" resultType="com.imooc.bilibili.domain.User">
         select *
@@ -132,6 +134,24 @@
         </where>
         limit #{no} , #{size};
     </select>
+
+    <delete id="deleteRefreshToken">
+        delete from t_refresh_token
+        where refreshToken = #{refreshToken}
+    </delete>
+
+    <insert id="addRefreshToken">
+        insert into t_refresh_token
+            (refreshToken, userId, createTime)
+        values
+            (#{refreshToken},#{userId},#{createTime})
+    </insert>
+
+    <select id="getRefreshTokenDetailByRefreshToken" resultType="com.imooc.bilibili.domain.RefreshTokenDetail">
+        select * from t_refresh_token
+        where refreshToken = #{refreshToken}
+    </select>
+
 
 
 </mapper> 

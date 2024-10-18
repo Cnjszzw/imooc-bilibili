@@ -12,6 +12,9 @@ import com.imooc.bilibili.service.util.RSAUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+
 @RestController
 public class UserApi {
 
@@ -78,6 +81,30 @@ public class UserApi {
         params.put("userId",userId);
         PageResult<UserInfo> result = userService.pageListUserInfos(params);
         return new JsonResponse<>(result);
+    }
+
+    //利用双token进行登录
+    @PostMapping("/user-dts")
+    public JsonResponse<Map<String,Object>> loginForDts(@RequestBody User user) throws Exception {
+        Map<String,Object> res = userService.loginForDts(user);
+        return new JsonResponse<>(res);
+    }
+
+    //登出接口（需要删除refreshToken）
+    @DeleteMapping("/refresh-tokens")
+    public JsonResponse<String> logout(HttpServletRequest request) throws Exception {
+        String refreshToken = request.getHeader("refreshToken");
+        Long userId = userSupport.getCurrentUserId();
+        userService.logout(refreshToken,userId);
+        return JsonResponse.success();
+    }
+
+    //刷新token(accessToken接口)
+    @PostMapping("/access-tokens")
+    public JsonResponse<String> refreshToken(HttpServletRequest request) throws Exception {
+        String refreshToken = request.getHeader("refreshToken");
+        String accessToken = userService.getrefreshedAccessToken(refreshToken);
+        return JsonResponse.success(accessToken);
     }
 
 }
