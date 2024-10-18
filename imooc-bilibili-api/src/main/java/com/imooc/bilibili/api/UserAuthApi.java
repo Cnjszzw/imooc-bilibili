@@ -18,7 +18,7 @@ public class UserAuthApi {
     @Autowired
     private UserAuthService userAuthService;
 
-    //获取用户相关权限接口
+    //获取用户相关权限接口（主要是前端来控制，接口和数据的权限控制主要是通过AOP切面编程来实现）
     @GetMapping("/user-authorities")
     public JsonResponse<UserAuthorities> getUserAuthorities() {
         Long userId = userSupport.getCurrentUserId();
