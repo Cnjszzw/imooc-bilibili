@@ -1,13 +1,13 @@
 package com.imooc.bilibili.service;
 
 
-import com.imooc.bilibili.domain.auth.AuthRoleElementOperation;
-import com.imooc.bilibili.domain.auth.AuthRoleMenu;
-import com.imooc.bilibili.domain.auth.UserAuthorities;
-import com.imooc.bilibili.domain.auth.UserRole;
+import com.imooc.bilibili.dao.UserAuthDao;
+import com.imooc.bilibili.domain.auth.*;
+import com.imooc.bilibili.domain.constant.AuthRoleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,5 +27,14 @@ public class UserAuthService {
         userAuthorities.setRoleElementOperationList(roleElementOperationList);
         userAuthorities.setRoleMenuList(roleMenuList);
         return userAuthorities;
+    }
+
+    public void addUserDefaultRole(Long id) {
+        UserRole userRole = new UserRole();
+        AuthRole authRole = userRoleService.getRoleByCode(AuthRoleConstant.ROLE_LV0);
+        userRole.setUserId(id);
+        userRole.setRoleId(authRole.getId());
+        userRole.setCreateTime(new Date());
+        userRoleService.addUserRole(userRole);
     }
 }

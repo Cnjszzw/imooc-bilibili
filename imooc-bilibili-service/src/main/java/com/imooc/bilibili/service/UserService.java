@@ -27,6 +27,10 @@ public class UserService {
     @Autowired
     private UserFollowingService userFollowingService;
 
+
+    @Autowired
+    private  UserAuthService userAuthService;
+
     public JsonResponse<String> addUser(User user) {
         //1.对传入的user进行校验，主要判断手机号的格式，并且判断没有注册过
         String phone = user.getPhone();
@@ -60,7 +64,8 @@ public class UserService {
         userInfo.setUpdateTime(new Date());
         //入库t_user_info表
         userDao.addUserInfo(userInfo);
-
+        //添加用户默认权限角色
+        userAuthService.addUserDefaultRole(user.getId());
         return JsonResponse.success();
 
 

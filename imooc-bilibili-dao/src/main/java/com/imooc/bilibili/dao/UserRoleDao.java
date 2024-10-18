@@ -1,5 +1,6 @@
 package com.imooc.bilibili.dao;
 
+import com.imooc.bilibili.domain.auth.AuthRole;
 import com.imooc.bilibili.domain.auth.AuthRoleElementOperation;
 import com.imooc.bilibili.domain.auth.AuthRoleMenu;
 import com.imooc.bilibili.domain.auth.UserRole;
@@ -16,4 +17,8 @@ public interface UserRoleDao {
     List<AuthRoleElementOperation> getRoleElementOperationList(@Param("userRoleUserRoleIdList") Set<Long> userRoleUserRoleIdList);
 
     List<AuthRoleMenu> getRoleMenuList(@Param("userRoleUserRoleIdList")Set<Long> userRoleUserRoleIdList);
+
+    AuthRole getRoleByCode(String code);
+
+    Integer addUserRole(UserRole userRole);
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace是要和实体类对应的接口一模一样的 -->
+<mapper namespace="com.imooc.bilibili.domain.auth.AuthRole">
+
+
+
+
+</mapper>

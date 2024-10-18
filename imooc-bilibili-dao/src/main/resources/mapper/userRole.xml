@@ -55,5 +55,12 @@
         </foreach>
     </select>
 
+    <select id="getRoleByCode" resultType="com.imooc.bilibili.domain.auth.AuthRole">
+        select * from t_auth_role where code = #{code}
+    </select>
 
+    <insert id="addUserRole">
+        insert into
+            t_user_role (userId, roleId,createTime) values (#{userId}, #{roleId} , #{createTime})
+    </insert>
 </mapper>
