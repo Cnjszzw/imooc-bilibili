@@ -73,6 +73,12 @@
             <version>2.5.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.tobato</groupId>
+            <artifactId>fastdfs-client</artifactId>
+            <version>1.27.2</version>
+        </dependency>
+
 
     </dependencies>
 
