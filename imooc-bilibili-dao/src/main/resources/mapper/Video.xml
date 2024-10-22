@@ -76,12 +76,20 @@
         where videoId = #{videoId}
     </select>
     <select id="queryVideoCollectionCounts" resultType="java.lang.Integer">
-        select count(*) from t_video_collection
+        select count(*)
+        from t_video_collection
         where videoId = #{videoId}
     </select>
     <select id="queryVideoCollection" resultType="com.imooc.bilibili.domain.VideoCollection">
-        select * from t_video_collection
-        where videoId = #{videoId} and userId = #{userId}
+        select *
+        from t_video_collection
+        where videoId = #{videoId}
+          and userId = #{userId}
+    </select>
+    <select id="getVideoCoins" resultType="java.lang.Integer">
+        select sum(amount)
+        from t_video_coin
+        where videoId = #{videoId}
     </select>
     <insert id="addLikeVideo">
         insert into t_video_like

@@ -38,4 +38,6 @@ public interface VideoDao {
     Integer queryVideoCollectionCounts(Long videoId);
 
     VideoCollection queryVideoCollection(@Param("videoId") Long videoId, @Param("userId") Long userId);
+
+    Integer getVideoCoins(@Param("videoId") Long videoId,@Param("userId") Long userId);
 }

@@ -28,6 +28,10 @@ public class VideoService {
     @Autowired
     private FastDFSUtil fastDFSUtil;
 
+    @Autowired
+    private UserCoinService userCoinService;
+
+
     @Transactional
     public void addVideos(Video video) {
         video.setCreateTime(new Date());
@@ -148,6 +152,61 @@ public class VideoService {
                 collected = false;
             }
             map.put("collected", collected);
+        }
+        return map;
+    }
+
+    @Transactional
+    public void addVideoCoins(VideoCoin videoCoins, Long userId) {
+        //判断视频是否存在
+        Video video = videoDao.getVideoByVideoId(videoCoins.getVideoId());
+        if (video == null) {
+            throw new ConditionException("视频不存在");
+        }
+        if(videoCoins.getAmount() == null ){
+            throw new ConditionException("投币数量不能为空");
+        }
+        //判断投币的数量是否大于零
+        if (videoCoins.getAmount() <= 0) {
+            throw new ConditionException("投币数量小于等于0！");
+        }
+        //判断用户硬币数量是否大于等于要投币的数量
+        Integer userCoinAmout = userCoinService.getUserCoinAmount(userId);
+        if (userCoinAmout < videoCoins.getAmount()) {
+            throw new ConditionException("硬币不足");
+        }
+        //判断用户是否投币过
+        VideoCoin dbvideoCoin = userCoinService.queryVideoCoinStatus(videoCoins.getVideoId(), userId);
+        if(dbvideoCoin == null){
+            //没投过币，执行新增逻辑
+            videoCoins.setUserId(userId);
+            videoCoins.setCreateTime(new Date());
+            videoCoins.setUpdateTime(new Date());
+            userCoinService.addVideoCoin(videoCoins);
+            userCoinService.updateUserCoinAmount(userId, userCoinAmout - videoCoins.getAmount() ,new Date());
+        }else{
+            //投币过，执行修改逻辑
+            videoCoins.setUpdateTime(new Date());
+            videoCoins.setUserId(userId);
+            videoCoins.setAmount(dbvideoCoin.getAmount() + videoCoins.getAmount());
+            userCoinService.updateVideoCoin(videoCoins);
+            userCoinService.updateUserCoinAmount(userId, userCoinAmout - (videoCoins.getAmount() - dbvideoCoin.getAmount()),new Date());
+        }
+    }
+
+    public Map<String, Object> getVideoCoins(Long videoId, Long userId) {
+        Integer count = videoDao.getVideoCoins(videoId,userId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("count", count);
+        if (userId != null) {
+            Boolean coined = null;
+            VideoCoin videoCoin = userCoinService.queryVideoCoinStatus(videoId, userId);
+            if (videoCoin != null) {
+                coined = true;
+            } else {
+                coined = false;
+            }
+            map.put("collected", coined);
         }
         return map;
     }

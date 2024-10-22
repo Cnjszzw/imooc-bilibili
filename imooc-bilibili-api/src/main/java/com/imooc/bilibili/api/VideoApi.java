@@ -2,10 +2,7 @@ package com.imooc.bilibili.api;
 
 
 import com.imooc.bilibili.api.support.UserSupport;
-import com.imooc.bilibili.domain.JsonResponse;
-import com.imooc.bilibili.domain.PageResult;
-import com.imooc.bilibili.domain.Video;
-import com.imooc.bilibili.domain.VideoCollection;
+import com.imooc.bilibili.domain.*;
 import com.imooc.bilibili.domain.exception.ConditionException;
 import com.imooc.bilibili.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,6 +148,34 @@ public class VideoApi {
         Map<String,Object> map = videoService.getVideoCollectionCounts(videoId,userId);
         return new JsonResponse<>(map);
     }
+
+    /**
+     * 投币接口
+     * 注意非法校验
+     */
+    @PostMapping("/video-coins")
+    public JsonResponse<String> addVideoCoins(@RequestBody VideoCoin videoCoins){
+        Long userId = userSupport.getCurrentUserId();
+        videoService.addVideoCoins(videoCoins,userId);
+        return JsonResponse.success();
+    }
+
+
+    /**
+     * 获取投币数量接口
+     * 注意游客模式
+     */
+    @GetMapping("/video-coins")
+    public JsonResponse<Map<String,Object>> getVideoCoins(@RequestParam Long videoId){
+        Long userId = null;
+        try{
+            userId = userSupport.getCurrentUserId();
+        }catch(Exception ignore){}
+        Map<String,Object> map = videoService.getVideoCoins(videoId,userId);
+        return new JsonResponse<>(map);
+    }
+
+
 
 
 

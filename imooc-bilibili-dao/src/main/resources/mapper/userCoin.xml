@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.imooc.bilibili.dao.UserCoinDao">
+    <insert id="addVideoCoin">
+        insert into t_video_coin
+        (userId,
+         videoId,
+         amount,
+         createTime,
+         updateTime)
+        values (#{userId},
+                #{videoId},
+                #{amount},
+                #{createTime},
+                #{updateTime})
+    </insert>
+    <update id="updateVideoCoin">
+        update t_video_coin
+        set amount  = #{amount},
+            updateTime = #{updateTime}
+        where userId = #{userId}
+          and videoId = #{videoId}
+    </update>
+    <update id="updateUserCoinAmount">
+        update t_user_coin
+        set amount = #{amount},
+            updateTime = #{updateTime}
+        where userId = #{userId}
+    </update>
+
+
+    <select id="getUserCoinAmount" resultType="java.lang.Integer">
+        select amount
+        from t_user_coin
+        where userId = #{userId}
+    </select>
+    <select id="queryVideoCoinStatus" resultType="com.imooc.bilibili.domain.VideoCoin">
+        select *
+        from t_video_coin
+        where userId = #{userId}
+          and videoId = #{videoId}
+    </select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
