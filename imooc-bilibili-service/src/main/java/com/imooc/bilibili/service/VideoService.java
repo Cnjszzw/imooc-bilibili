@@ -2,10 +2,7 @@ package com.imooc.bilibili.service;
 
 
 import com.imooc.bilibili.dao.VideoDao;
-import com.imooc.bilibili.domain.PageResult;
-import com.imooc.bilibili.domain.Video;
-import com.imooc.bilibili.domain.VideoLike;
-import com.imooc.bilibili.domain.VideoTag;
+import com.imooc.bilibili.domain.*;
 import com.imooc.bilibili.domain.exception.ConditionException;
 import com.imooc.bilibili.service.util.FastDFSUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,6 +114,40 @@ public class VideoService {
                 liked = false;
             }
             map.put("like", liked);
+        }
+        return map;
+    }
+
+    @Transactional
+    public void addVideoCollection(VideoCollection videoCollection) {
+        //判断视频是否存在
+        Video video = videoDao.getVideoByVideoId(videoCollection.getVideoId());
+        if (video == null) {
+            throw new ConditionException("视频不存在");
+        }
+        videoDao.delVideoCollection(videoCollection.getVideoId(),videoCollection.getUserId(),videoCollection.getGroupId());
+        videoCollection.setUserId(videoCollection.getUserId());
+        videoCollection.setCreateTime(new Date());
+        videoDao.addVideoCollection(videoCollection);
+    }
+
+    public void deleteVideoCollection(Long videoId, Long userId) {
+        videoDao.delVideoCollection(videoId, userId, null);
+    }
+
+    public Map<String, Object> getVideoCollectionCounts(Long videoId, Long userId) {
+        Integer count = videoDao.queryVideoCollectionCounts(videoId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("count", count);
+        if (userId != null) {
+            Boolean collected = null;
+            VideoCollection videoCollection = videoDao.queryVideoCollection(videoId, userId);
+            if (videoCollection != null) {
+                collected = true;
+            } else {
+                collected = false;
+            }
+            map.put("collected", collected);
         }
         return map;
     }

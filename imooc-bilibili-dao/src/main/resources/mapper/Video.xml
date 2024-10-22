@@ -75,6 +75,14 @@
         from t_video_like
         where videoId = #{videoId}
     </select>
+    <select id="queryVideoCollectionCounts" resultType="java.lang.Integer">
+        select count(*) from t_video_collection
+        where videoId = #{videoId}
+    </select>
+    <select id="queryVideoCollection" resultType="com.imooc.bilibili.domain.VideoCollection">
+        select * from t_video_collection
+        where videoId = #{videoId} and userId = #{userId}
+    </select>
     <insert id="addLikeVideo">
         insert into t_video_like
         (userId,
@@ -84,10 +92,29 @@
                 #{videoId},
                 #{createTime})
     </insert>
+    <insert id="addVideoCollection">
+        insert into t_video_collection(videoId,
+                                       userId,
+                                       groupId,
+                                       createTime)
+        values (#{videoId},
+                #{userId},
+                #{groupId},
+                #{createTime})
+    </insert>
     <delete id="deleteLikeVideo">
         delete
         from t_video_like
         where videoId = #{videoId}
           and userId = #{userId}
+    </delete>
+    <delete id="delVideoCollection">
+        delete
+        from t_video_collection
+        where videoId = #{videoId}
+        and userId = #{userId}
+        <if test="groupId != null and groupId != '' ">
+            and groupId=#{groupId}
+        </if>
     </delete>
 </mapper>
