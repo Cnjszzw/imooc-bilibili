@@ -6,39 +6,38 @@
 
     <insert id="addVideos" useGeneratedKeys="true" keyProperty="id">
         insert into t_video
-            (userId,
-             url,
-             thumbnail,
-             title,
-             type,
-             duration,
-             area,
-             description,
-             createTime,
-             updateTime)
-        values
-            (#{userId},
-             #{url},
-             #{thumbnail},
-             #{title},
-             #{type},
-             #{duration},
-             #{area},
-             #{description},
-             #{createTime},
-             #{updateTime})
+        (userId,
+         url,
+         thumbnail,
+         title,
+         type,
+         duration,
+         area,
+         description,
+         createTime,
+         updateTime)
+        values (#{userId},
+                #{url},
+                #{thumbnail},
+                #{title},
+                #{type},
+                #{duration},
+                #{area},
+                #{description},
+                #{createTime},
+                #{updateTime})
     </insert>
     <insert id="batchAddVideoTags">
         insert into t_video_tag(
-            videoId,
-            tagId,
-            createTime
+        videoId,
+        tagId,
+        createTime
         )values
-         <foreach collection="tagList" item="videoTag" separator=",">
-             (#{videoTag.videoId},#{videoTag.tagId},#{videoTag.createTime})
-         </foreach>
+        <foreach collection="tagList" item="videoTag" separator=",">
+            (#{videoTag.videoId},#{videoTag.tagId},#{videoTag.createTime})
+        </foreach>
     </insert>
-    <select id="pageListVideos" resultType="com.imooc.bilibili.domain.Video" >
+    <select id="pageListVideos" resultType="com.imooc.bilibili.domain.Video">
         select * from t_video
         <where>
             <if test="area != null and area != ''">
@@ -56,6 +55,39 @@
         </where>
     </select>
     <select id="queryVideoTagsByVideoId" resultType="com.imooc.bilibili.domain.VideoTag">
-        select * from t_video_tag where videoId = #{videoId}
+        select *
+        from t_video_tag
+        where videoId = #{videoId}
     </select>
+    <select id="getVideoByVideoId" resultType="com.imooc.bilibili.domain.Video">
+        select *
+        from t_video
+        where id = #{videoId}
+    </select>
+    <select id="getVideoLike" resultType="com.imooc.bilibili.domain.VideoLike">
+        select *
+        from t_video_like
+        where videoId = #{videoId}
+          and userId = #{userId}
+    </select>
+    <select id="getLikeVideoNum" resultType="java.lang.Integer">
+        select count(*)
+        from t_video_like
+        where videoId = #{videoId}
+    </select>
+    <insert id="addLikeVideo">
+        insert into t_video_like
+        (userId,
+         videoId,
+         createTime)
+        values (#{userId},
+                #{videoId},
+                #{createTime})
+    </insert>
+    <delete id="deleteLikeVideo">
+        delete
+        from t_video_like
+        where videoId = #{videoId}
+          and userId = #{userId}
+    </delete>
 </mapper>
