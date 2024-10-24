@@ -91,6 +91,30 @@
         from t_video_coin
         where videoId = #{videoId}
     </select>
+    <select id="getVideoTotalCommentNum" resultType="java.lang.Integer">
+        select count(1)
+        from t_video_comment
+        where videoId = #{videoId}
+          and rootId is null;
+    </select>
+    <select id="pageListVideoComments" resultType="com.imooc.bilibili.domain.VideoComment">
+        select *
+        from t_video_comment
+        where videoId =
+              #{videoId}
+          and rootId is null
+        order by id
+                desc
+            limit #{start},
+                 #{limit}
+    </select>
+    <select id="pageListVideoCommentReplies" resultType="com.imooc.bilibili.domain.VideoComment">
+        select *
+        from t_video_comment
+        where videoId =
+              #{videoId}
+          and rootId is NOT null
+    </select>
     <insert id="addLikeVideo">
         insert into t_video_like
         (userId,
@@ -109,6 +133,23 @@
                 #{userId},
                 #{groupId},
                 #{createTime})
+    </insert>
+    <insert id="addVideoComment">
+        insert into t_video_comment
+        (videoId,
+         userId,
+         comment,
+         replyUserId,
+         rootId,
+         createTime,
+         updateTime)
+        values (#{videoId},
+                #{userId},
+                #{comment},
+                #{replyUserId},
+                #{rootId},
+                #{createTime},
+                #{updateTime})
     </insert>
     <delete id="deleteLikeVideo">
         delete

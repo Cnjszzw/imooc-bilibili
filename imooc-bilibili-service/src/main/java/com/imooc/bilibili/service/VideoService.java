@@ -8,15 +8,12 @@ import com.imooc.bilibili.service.util.FastDFSUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sun.net.www.http.HttpClient;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class VideoService {
@@ -30,6 +27,9 @@ public class VideoService {
 
     @Autowired
     private UserCoinService userCoinService;
+
+    @Autowired
+    private UserService userService;
 
 
     @Transactional
@@ -209,6 +209,68 @@ public class VideoService {
             map.put("collected", coined);
         }
         return map;
+    }
+
+    public void addVideoComment(VideoComment videoComment) {
+        //判断视频是否存在
+        Video video = videoDao.getVideoByVideoId(videoComment.getVideoId());
+        if (video == null) {
+            throw new ConditionException("视频不存在");
+        }
+        videoComment.setCreateTime(new Date());
+        videoComment.setUpdateTime(new Date());
+        videoDao.addVideoComment(videoComment);
+    }
+
+    @Transactional
+    public PageResult<VideoComment> pageListVideoComments(Integer start, Integer limit, Long videoId) {
+        //判断视频是否存在
+        Video video = videoDao.getVideoByVideoId(videoId);
+        if (video == null) {
+            throw new ConditionException("视频不存在");
+        }
+        Integer videoTotalCommentNum = videoDao.getVideoTotalCommentNum(videoId);
+        PageResult<VideoComment> res = new PageResult<>();
+        res.setTotal(videoTotalCommentNum);
+        if(videoTotalCommentNum == 0){
+            return res;
+        }
+        //查询视频评论接口
+        Map<String,Object> params = new HashMap<>();
+        params.put("start",start);
+        params.put("limit",limit);
+        params.put("videoId",videoId);
+        //查询出所有的一级评论
+        List<VideoComment> videoComments = videoDao.pageListVideoComments(params);
+        //查询出所有的二级评论
+        List<VideoComment> videoCommentReplies = videoDao.pageListVideoCommentReplies(videoId);
+        //将二级评论设置到一级评论中
+        for (VideoComment videoComment : videoComments) {
+            List<VideoComment> childList = new ArrayList<>();
+            for (VideoComment videoCommentReply : videoCommentReplies) {
+                if(videoComment.getUserId().equals(videoCommentReply.getReplyUserId())){
+                    childList.add(videoCommentReply);
+                }
+            }
+            videoComment.setChildList(childList);
+        }
+        //查询出所有用户的用户信息
+        Set<Long> userList = videoComments.stream().map(VideoComment::getUserId).collect(Collectors.toSet());
+        Set<Long> userReplyList = videoCommentReplies.stream().map(VideoComment::getUserId).collect(Collectors.toSet());
+        userList.addAll(userReplyList);
+        List<UserInfo> userInfoList = userService.getUserInfoByUserIds(userList);
+        Map<Long, UserInfo> userInfoListMap = userInfoList.stream().collect(Collectors.toMap(UserInfo::getUserId, UserInfo -> UserInfo));
+        //将用户信息设置到一级评论和二级评论中
+        for (VideoComment videoComment : videoComments) {
+            List<VideoComment> childList = videoComment.getChildList();
+            for (VideoComment comment : childList) {
+                comment.setUserInfo(userInfoListMap.get(comment.getUserId()));
+                comment.setReplyUserInfo(userInfoListMap.get(comment.getReplyUserId()));
+            }
+            videoComment.setUserInfo(userInfoListMap.get(videoComment.getUserId()));
+        }
+        res.setList(videoComments);
+        return res;
     }
 }
 

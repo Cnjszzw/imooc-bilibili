@@ -136,25 +136,33 @@
     </select>
 
     <delete id="deleteRefreshToken">
-        delete from t_refresh_token
+        delete
+        from t_refresh_token
         where refreshToken = #{refreshToken}
     </delete>
 
     <insert id="addRefreshToken">
         insert into t_refresh_token
             (refreshToken, userId, createTime)
-        values
-            (#{refreshToken},#{userId},#{createTime})
+        values (#{refreshToken}, #{userId}, #{createTime})
     </insert>
 
     <select id="getRefreshTokenDetailByRefreshToken" resultType="com.imooc.bilibili.domain.RefreshTokenDetail">
-        select * from t_refresh_token
+        select *
+        from t_refresh_token
         where refreshToken = #{refreshToken}
+    </select>
+    <select id="getUserInfoByUserIds" resultType="com.imooc.bilibili.domain.UserInfo">
+        select * from t_user_info
+        where userId in
+        <foreach collection="userIdList" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+
     </select>
 
 
-
-</mapper> 
+</mapper>
 
 
 

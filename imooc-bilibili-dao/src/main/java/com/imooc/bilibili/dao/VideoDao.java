@@ -34,10 +34,17 @@ public interface VideoDao {
 
     Integer delVideoCollection(@Param("videoId") Long videoId, @Param("userId") Long userId, @Param("groupId") Long groupId);
 
-
     Integer queryVideoCollectionCounts(Long videoId);
 
     VideoCollection queryVideoCollection(@Param("videoId") Long videoId, @Param("userId") Long userId);
 
     Integer getVideoCoins(@Param("videoId") Long videoId,@Param("userId") Long userId);
+
+    Integer addVideoComment(VideoComment videoComment);
+
+    Integer getVideoTotalCommentNum(Long videoId);
+
+    List<VideoComment> pageListVideoComments(Map<String, Object> params);
+
+    List<VideoComment> pageListVideoCommentReplies(Long videoId);
 }

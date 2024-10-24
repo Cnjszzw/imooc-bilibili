@@ -215,6 +215,10 @@ public class UserService {
         }
         return TokenUtil.generateToken(TokenUtil.verifyToken(refreshToken));
     }
+
+    public List<UserInfo> getUserInfoByUserIds(Set<Long> userIdList) {
+        return userDao.getUserInfoByUserIds(userIdList);
+    }
 }
 
 
