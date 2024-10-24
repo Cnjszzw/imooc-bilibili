@@ -115,6 +115,14 @@
               #{videoId}
           and rootId is NOT null
     </select>
+    <select id="getVideoDetails" resultType="com.imooc.bilibili.domain.Video">
+        select
+            *
+        from
+            t_video
+        where
+            id = #{id}
+    </select>
     <insert id="addLikeVideo">
         insert into t_video_like
         (userId,

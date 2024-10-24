@@ -47,4 +47,6 @@ public interface VideoDao {
     List<VideoComment> pageListVideoComments(Map<String, Object> params);
 
     List<VideoComment> pageListVideoCommentReplies(Long videoId);
+
+    Video getVideoDetails(Long videoId);
 }
