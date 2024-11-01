@@ -254,7 +254,11 @@ public class VideoService {
         for (VideoComment videoComment : videoComments) {
             List<VideoComment> childList = new ArrayList<>();
             for (VideoComment videoCommentReply : videoCommentReplies) {
-                if(videoComment.getUserId().equals(videoCommentReply.getReplyUserId())){
+                //好像这个逻辑不太对啊，应该是判断评论的id和其他评论的rrootId是否相等
+//                if(videoComment.getUserId().equals(videoCommentReply.getReplyUserId())){
+//                    childList.add(videoCommentReply);
+//                }
+                if(videoComment.getId().equals(videoCommentReply.getRootId())){
                     childList.add(videoCommentReply);
                 }
             }
@@ -281,6 +285,9 @@ public class VideoService {
 
     public Map<String, Object> getVideoDetails(Long videoId) {
         Video video =  videoDao.getVideoDetails(videoId);
+        if(video == null){
+            throw new ConditionException("视频不存在");
+        }
         List<VideoTag> videoTags = videoDao.getVideoTags(videoId);
         Set<Long> videoTagIds = videoTags.stream().map(VideoTag::getTagId).collect(Collectors.toSet());
         List<Tag> TagLists = videoDao.getVideoTagNamesByIds(videoTagIds);
