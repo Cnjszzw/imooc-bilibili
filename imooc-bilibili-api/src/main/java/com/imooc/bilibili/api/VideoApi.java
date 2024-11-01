@@ -67,6 +67,14 @@ public class VideoApi {
     public void viewVideoOnlineBySlicesSimple(HttpServletRequest request,HttpServletResponse response,String url) throws Exception {
         videoService.viewVideoOnlineBySlicesSimple(request,response,url);
     }
+    /**
+     * 获取视频封面图片（昵称头像）的接口
+     */
+    @GetMapping("/viewImage")
+    public void viewImage(HttpServletRequest request,HttpServletResponse response,String url) throws Exception {
+        System.out.println("Incoming request with URL parameter: " + url);
+        videoService.viewImage(request,response,url);
+    }
 
     /**
      * 点赞视频接口

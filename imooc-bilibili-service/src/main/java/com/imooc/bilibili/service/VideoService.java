@@ -300,6 +300,9 @@ public class VideoService {
         }
         Long userId = video.getUserId();
         User user = userService.getUserInfo(userId);
+        if(user == null){
+            throw new ConditionException("用户不存在");
+        }
         UserInfo userInfo = user.getUserInfo();
         Map<String, Object> result = new HashMap<>();
         result.put("video", video);
@@ -339,6 +342,10 @@ public class VideoService {
 
     public Integer getVideoViewCounts(Long videoId) {
         return videoDao.getVideoViewCounts(videoId);
+    }
+
+    public void viewImage(HttpServletRequest request, HttpServletResponse response, String url) throws Exception {
+        fastDFSUtil.viewImage(request, response, url);
     }
 }
 

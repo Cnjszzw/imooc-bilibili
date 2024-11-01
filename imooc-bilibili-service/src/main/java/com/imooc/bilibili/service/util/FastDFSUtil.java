@@ -247,4 +247,62 @@ public class FastDFSUtil {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Video not found.");
         }
     }
+
+    public void viewImage(HttpServletRequest request, HttpServletResponse response, String url) throws Exception {
+        // 创建 HTTP GET 请求，url 是图片的相对路径
+        HttpGet httpGet = new HttpGet(httpFdfsStorageAddr + url);
+        HttpResponse execute = httpClient.execute(httpGet);
+        HttpEntity entity = execute.getEntity();
+
+        if (entity != null) {
+            // 设置返回的内容类型为图片文件（例如 JPEG 格式）
+            response.setContentType("image/jpeg");  // 这里也可以改成 "image/png" 等其他格式
+
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+
+            try {
+                // 从 HttpEntity 中获取输入流
+                inputStream = entity.getContent();
+                // 获取响应输出流，用于返回数据给客户端
+                outputStream = response.getOutputStream();
+                // 定义缓冲区，逐块读取数据并传递到响应输出流
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+
+                // 循环读取输入流的数据，并写入输出流
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                // 将输出流中的数据刷新到客户端
+                outputStream.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                // 关闭输入流，避免资源泄漏
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                // 关闭输出流，避免资源泄漏
+                if (outputStream != null) {
+                    try {
+                        outputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                // 确保 HttpEntity 资源被释放
+                EntityUtils.consume(entity);
+            }
+
+        } else {
+            // 如果图片未找到，返回 404 错误
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Image not found.");
+        }
+    }
+
 }
