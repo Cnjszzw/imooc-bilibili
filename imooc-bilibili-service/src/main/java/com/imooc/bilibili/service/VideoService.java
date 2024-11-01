@@ -209,7 +209,7 @@ public class VideoService {
             } else {
                 coined = false;
             }
-            map.put("collected", coined);
+            map.put("hasCoin", coined);
         }
         return map;
     }
