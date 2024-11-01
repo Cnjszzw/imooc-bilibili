@@ -174,4 +174,51 @@
             and groupId=#{groupId}
         </if>
     </delete>
+
+    <select id="getVideoView" parameterType="java.util.Map" resultType="com.imooc.bilibili.domain.VideoView">
+        select
+        *
+        from
+        t_video_view
+        where
+        videoId = #{videoId}
+        <if test="userId == null and clientId != null">
+            and clientId = #{clientId} and userId is null
+        </if>
+        <if test="userId != null">
+            and userId = #{userId}
+        </if>
+        <if test="ip != null and ip != '' ">
+            and ip = #{ip}
+        </if>
+        <if test="today != null and today != '' ">
+            and DATE_FORMAT(createTime,'%Y-%m-%d') = #{today}
+        </if>
+    </select>
+
+    <insert id="addVideoView" parameterType="com.imooc.bilibili.domain.VideoView">
+        insert into
+            t_video_view(
+            videoId,
+            userId,
+            clientId,
+            ip,
+            createTime
+        )values(
+                   #{videoId},
+                   #{userId},
+                   #{clientId},
+                   #{ip},
+                   #{createTime}
+               )
+    </insert>
+
+    <select id="getVideoViewCounts" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            t_video_view
+        where
+            videoId = #{videoId}
+    </select>
 </mapper>

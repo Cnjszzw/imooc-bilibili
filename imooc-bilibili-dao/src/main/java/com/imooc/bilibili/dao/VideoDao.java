@@ -49,4 +49,10 @@ public interface VideoDao {
     List<VideoComment> pageListVideoCommentReplies(Long videoId);
 
     Video getVideoDetails(Long videoId);
+
+    VideoView getVideoView(Map<String, Object> params);
+
+    Integer addVideoView(VideoView videoView);
+
+    Integer getVideoViewCounts(Long videoId);
 }

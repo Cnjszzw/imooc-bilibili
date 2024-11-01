@@ -5,6 +5,8 @@ import com.imooc.bilibili.dao.VideoDao;
 import com.imooc.bilibili.domain.*;
 import com.imooc.bilibili.domain.exception.ConditionException;
 import com.imooc.bilibili.service.util.FastDFSUtil;
+import com.imooc.bilibili.service.util.IpUtil;
+import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -282,6 +285,39 @@ public class VideoService {
         result.put("video", video);
         result.put("userInfo", userInfo);
         return result;
+    }
+
+    public void addVideoView(VideoView videoView, HttpServletRequest request) {
+        Long userId = videoView.getUserId();
+        Long videoId = videoView.getVideoId();
+        //生成clientId
+        String agent = request.getHeader("User-Agent");
+        UserAgent userAgent = UserAgent.parseUserAgentString(agent);
+        String clientId = String.valueOf(userAgent.getId());
+        String ip = IpUtil.getIP(request);
+        Map<String, Object> params = new HashMap<>();
+        if(userId != null){
+            params.put("userId", userId);
+        }else{
+            params.put("ip", ip);
+            params.put("clientId", clientId);
+        }
+        Date now = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        params.put("today", sdf.format(now));
+        params.put("videoId", videoId);
+        //添加观看记录
+        VideoView dbVideoView = videoDao.getVideoView(params);
+        if(dbVideoView == null){
+            videoView.setIp(ip);
+            videoView.setClientId(clientId);
+            videoView.setCreateTime(new Date());
+            videoDao.addVideoView(videoView);
+        }
+    }
+
+    public Integer getVideoViewCounts(Long videoId) {
+        return videoDao.getVideoViewCounts(videoId);
     }
 }
 
