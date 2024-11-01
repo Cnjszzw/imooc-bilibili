@@ -26,6 +26,7 @@
             t_file
         where
             md5 = #{md5}
+        limit 0 , 1
     </select>
 
 </mapper>
