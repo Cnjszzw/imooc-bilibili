@@ -245,6 +245,9 @@ public class VideoService {
         params.put("videoId",videoId);
         //查询出所有的一级评论
         List<VideoComment> videoComments = videoDao.pageListVideoComments(params);
+        if(videoComments.size() <= 0){
+            return res;
+        }
         //查询出所有的二级评论
         List<VideoComment> videoCommentReplies = videoDao.pageListVideoCommentReplies(videoId);
         //将二级评论设置到一级评论中
