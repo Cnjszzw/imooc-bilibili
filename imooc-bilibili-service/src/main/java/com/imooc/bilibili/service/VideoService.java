@@ -278,12 +278,23 @@ public class VideoService {
 
     public Map<String, Object> getVideoDetails(Long videoId) {
         Video video =  videoDao.getVideoDetails(videoId);
+        List<VideoTag> videoTags = videoDao.getVideoTags(videoId);
+        Set<Long> videoTagIds = videoTags.stream().map(VideoTag::getTagId).collect(Collectors.toSet());
+        List<Tag> TagLists = videoDao.getVideoTagNamesByIds(videoTagIds);
+        List<Map<String, Object>> videoTagList = new ArrayList<>();
+        for (Tag tagList : TagLists) {
+            Map<String, Object> tagMap = new HashMap<>();
+            tagMap.put("tagId", tagList.getId());
+            tagMap.put("tagName", tagList.getName());
+            videoTagList.add(tagMap);
+        }
         Long userId = video.getUserId();
         User user = userService.getUserInfo(userId);
         UserInfo userInfo = user.getUserInfo();
         Map<String, Object> result = new HashMap<>();
         result.put("video", video);
         result.put("userInfo", userInfo);
+        result.put("videoTagList", videoTagList);
         return result;
     }
 

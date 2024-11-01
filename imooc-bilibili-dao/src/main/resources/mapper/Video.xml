@@ -3,7 +3,6 @@
 
 <!-- namespace是要和实体类对应的接口一模一样的 -->
 <mapper namespace="com.imooc.bilibili.dao.VideoDao">
-
     <insert id="addVideos" useGeneratedKeys="true" keyProperty="id">
         insert into t_video
         (userId,
@@ -220,5 +219,17 @@
             t_video_view
         where
             videoId = #{videoId}
+    </select>
+    <select id="getVideoTags" resultType="com.imooc.bilibili.domain.VideoTag">
+        select * from t_video_tag where videoId = #{videoId}
+    </select>
+    <select id="getVideoTagNamesByIds" resultType="com.imooc.bilibili.domain.Tag" >
+        select * from t_tag
+        <where>
+            id in
+            <foreach collection="videoTagIds" item="videoTagId" open="(" separator="," close=")">
+                #{videoTagId}
+            </foreach>
+        </where>
     </select>
 </mapper>

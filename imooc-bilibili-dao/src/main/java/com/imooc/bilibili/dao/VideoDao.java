@@ -2,11 +2,13 @@ package com.imooc.bilibili.dao;
 
 
 import com.imooc.bilibili.domain.*;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Mapper
 public interface VideoDao {
@@ -55,4 +57,8 @@ public interface VideoDao {
     Integer addVideoView(VideoView videoView);
 
     Integer getVideoViewCounts(Long videoId);
+
+    List<VideoTag> getVideoTags(Long videoId);
+
+    List<Tag> getVideoTagNamesByIds(@Param("videoTagIds") Set<Long> videoTagIds);
 }
