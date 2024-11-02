@@ -151,6 +151,13 @@ public class UserFollowingService {
     }
 
 
+    public void deleteUserFollowing(Long userId, Long followingId) {
+        userFollowingDao.deleteUserFollowing(userId, followingId);
+    }
+
+    public void updateUserFollowings(UserFollowing userFollowing) {
+        userFollowingDao.updateUserFollowings(userFollowing);
+    }
 }
 
 

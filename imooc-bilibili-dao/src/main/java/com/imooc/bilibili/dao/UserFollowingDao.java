@@ -17,4 +17,6 @@ public interface UserFollowingDao {
     List<UserFollowing> getUserFollowings(Long userId);
 
     List<UserFollowing> getUserFanFollowings(Long userId);
+
+    void updateUserFollowings(UserFollowing userFollowing);
 }

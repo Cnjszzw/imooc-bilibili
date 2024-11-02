@@ -3,7 +3,15 @@
 
 <!-- namespace是要和实体类对应的接口一模一样的 -->
 <mapper namespace="com.imooc.bilibili.dao.UserFollowingDao">
-    
+    <update id="updateUserFollowings">
+        update
+            t_user_following
+        set
+            groupId = #{groupId}
+        where
+            userId = #{userId} and followingId = #{followingId}
+    </update>
+
     <delete id="deleteUserFollowing" >
         delete from t_user_following
         where userId = #{userId} and followingId = #{followingId}

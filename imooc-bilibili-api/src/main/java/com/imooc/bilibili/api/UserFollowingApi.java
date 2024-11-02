@@ -36,6 +36,23 @@ public class UserFollowingApi {
         return new JsonResponse<>(result);
     }
 
+    //删除用户关注
+    @DeleteMapping("/user-followings")
+    public JsonResponse<String> deleteUserFollowing(@RequestParam Long followingId){
+        Long userId = userSupport.getCurrentUserId();
+        userFollowingService.deleteUserFollowing(userId, followingId);
+        return JsonResponse.success();
+    }
+
+    //修改用户关注
+    @PutMapping("/user-followings")
+    public JsonResponse<String> updateUserFollowings(@RequestBody UserFollowing userFollowing){
+        Long userId = userSupport.getCurrentUserId();
+        userFollowing.setUserId(userId);
+        userFollowingService.updateUserFollowings(userFollowing);
+        return JsonResponse.success();
+    }
+
     //获取用户粉丝列表
     @GetMapping("/user-fans")
     public JsonResponse<List<UserFollowing>> getUserFans(){
