@@ -1,9 +1,8 @@
 package com.imooc.bilibili.domain;
 
 import java.util.Date;
-import java.util.List;
 
-public class FollowingGroup {
+public class VideoCollectionGroup {
 
     private Long id;
 
@@ -16,18 +15,6 @@ public class FollowingGroup {
     private Date createTime;
 
     private Date updateTime;
-
-    private List<UserInfo> followingUserInfoList;
-
-    private Integer count;
-
-    public Integer getCount() {
-        return count;
-    }
-
-    public void setCount(Integer count) {
-        this.count = count;
-    }
 
     public Long getId() {
         return id;
@@ -69,19 +56,11 @@ public class FollowingGroup {
         this.createTime = createTime;
     }
 
-//    public Date getUpdateTime() {
-//        return updateTime;
-//    }
-//
-//    public void setUpdateTime(Date updateTime) {
-//        this.updateTime = updateTime;
-//    }
-//
-    public List<UserInfo> getFollowingUserInfoList() {
-        return followingUserInfoList;
+    public Date getUpdateTime() {
+        return updateTime;
     }
 
-    public void setFollowingUserInfoList(List<UserInfo> followingUserInfoList) {
-        this.followingUserInfoList = followingUserInfoList;
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 }

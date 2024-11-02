@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.imooc.bilibili.dao.UserCenterDao">
+
+
+    <select id="getUserCenterVideoAreas" resultType="com.imooc.bilibili.domain.VideoArea">
+        SELECT
+            userId,
+            area,
+            IFNULL( COUNT( id ), 0 ) AS count
+        FROM
+            t_video
+        WHERE
+            userId = #{userId}
+        GROUP BY area
+        ORDER BY area
+    </select>
+
+    <select id="pageCountUserCenterVideos" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            t_video
+        WHERE
+            userId = #{userId}
+            <if test="area != null and area != '' ">
+                and area = #{area}
+            </if>
+    </select>
+
+    <select id="pageListUserCenterVideos" parameterType="java.util.Map" resultType="com.imooc.bilibili.domain.Video">
+        select
+            *
+        from
+            t_video
+        where
+            userId = #{userId}
+            <if test="area != null and area != '' ">
+                and area = #{area}
+            </if>
+        order by id desc
+        limit #{start}, #{limit}
+    </select>
+
+    <select id="getUserFollowingGroups" resultType="com.imooc.bilibili.domain.FollowingGroup">
+        select
+            *
+        from
+            t_following_group
+        where
+            userId = #{userId}
+            or type in ("0", "1", "2")
+        order by type+0
+    </select>
+
+
+    <select id="pageCountUserCenterFollowings" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            t_user_following
+        where
+            userId = #{userId}
+            <if test="groupId != null ">
+                and groupId = #{groupId}
+            </if>
+    </select>
+
+    <select id="pageListUserCenterFollowings" resultType="com.imooc.bilibili.domain.UserFollowing">
+        select
+            *
+        from
+            t_user_following
+        where
+            userId = #{userId}
+            <if test="groupId != null ">
+                and groupId = #{groupId}
+            </if>
+        order by id desc
+        limit #{start}, #{limit}
+    </select>
+
+    <select id="getUserInfoByIds" resultType="com.imooc.bilibili.domain.UserInfo">
+        select
+            *
+        from
+            t_user_info
+        where
+            userId in
+            <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+    </select>
+
+
+    <select id="pageCountUserFans" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            t_user_following
+        where
+            followingId = #{userId}
+    </select>
+
+
+    <select id="pageListUserFans" resultType="com.imooc.bilibili.domain.UserFollowing">
+        select
+            *
+        from
+            t_user_following
+        where
+            followingId = #{userId}
+        order by id desc
+        limit #{start}, #{limit}
+    </select>
+
+    <select id="getUserFollowings" resultType="com.imooc.bilibili.domain.UserFollowing">
+        select
+            *
+        from
+            t_user_following
+        where
+            userId = #{userId}
+    </select>
+
+    <select id="countUserCenterCollectionGroups" resultType="com.imooc.bilibili.domain.CollectionGroup">
+        SELECT
+            cg.id AS groupId,
+            IFNULL( COUNT( vc.videoId ), 0 ) AS count,
+	        cg.`name` AS groupName
+        FROM
+            t_collection_group cg
+            LEFT JOIN t_video_collection vc ON cg.id = vc.groupId
+            AND vc.userId = #{userId}
+        GROUP BY
+            cg.id
+        ORDER BY
+            groupId;
+    </select>
+
+    <select id="pageCountUserCollections" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            t_video_collection
+        where
+            userId = #{userId}
+            <if test="groupId != null ">
+                and groupId = #{groupId}
+            </if>
+    </select>
+
+    <select id="pageListUserCollections" resultType="com.imooc.bilibili.domain.VideoCollection">
+        select
+            *
+        from
+            t_video_collection
+        where
+            userId = #{userId}
+            <if test="groupId != null ">
+                and groupId = #{groupId}
+            </if>
+        order by id desc
+        limit #{start}, #{limit}
+    </select>
+
+    <select id="getVideoInfoByIds" resultType="com.imooc.bilibili.domain.Video">
+        select
+            *
+        from
+            t_video
+        where
+            id in
+            <foreach collection="videoIds" item="videoId" open="(" close=")" separator=",">
+                #{videoId}
+            </foreach>
+    </select>
+
+    <insert id="addUserCollectionGroups" parameterType="com.imooc.bilibili.domain.VideoCollectionGroup">
+        insert into
+            t_collection_group
+            (
+             userId,
+             name,
+             type,
+             createTime
+            )values
+             (
+              #{userId},
+              #{name},
+              #{type},
+              #{createTime}
+             )
+    </insert>
+
+    <select id="countUserCenterFollowingGroups" resultType="com.imooc.bilibili.domain.FollowingGroup">
+        SELECT
+            uf.userId as userId,
+            fg.id as id,
+            fg.name as name,
+            IFNULL( COUNT( uf.followingId ), 0 ) AS count
+        FROM
+            t_user_following uf
+            left join t_following_group fg on uf.groupId = fg.id
+        WHERE
+            uf.userId = #{userId}
+        GROUP BY uf.groupId
+        ORDER BY uf.groupId
+    </select>
+
+    <select id="countUserFans" resultType="java.lang.Long">
+        select
+            count(1)
+        from
+            t_user_following
+        where
+            followingId = #{userId}
+    </select>
+
+</mapper>

@@ -61,4 +61,8 @@ public interface VideoDao {
     List<VideoTag> getVideoTags(Long videoId);
 
     List<Tag> getVideoTagNamesByIds(@Param("videoTagIds") Set<Long> videoTagIds);
+
+    List<VideoViewCount> getVideoViewCountByVideoIds(Set<Long> videoIds);
+
+    List<VideoDanmuCount> getVideoDanmuCountByVideoIds(Set<Long> videoIds);
 }

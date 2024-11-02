@@ -347,6 +347,40 @@ public class VideoService {
     public void viewImage(HttpServletRequest request, HttpServletResponse response, String url) throws Exception {
         fastDFSUtil.viewImage(request, response, url);
     }
+
+    public List<Video> getVideoCount(List<Video> videoList){
+        if(!videoList.isEmpty()){
+            //获取视频id集合
+            Set<Long> videoIdSet = videoList.stream().map(Video :: getId)
+                    .collect(Collectors.toSet());
+            //统计播放量
+            Map<Long, Integer> viewCountMap = this.batchCountVideoView(videoIdSet);
+            //统计弹幕量
+            Map<Long, Integer> danmuCountMap = this.batchCountVideoDanmu(videoIdSet);
+            //构建返回数据
+            videoList.forEach(video -> {
+                video.setViewCount(viewCountMap.get(video.getId()));
+                video.setDanmuCount(danmuCountMap.get(video.getId()));
+            });
+        }
+        return videoList;
+    }
+
+    //统计视频播放量
+    public Map<Long, Integer>  batchCountVideoView(Set<Long> videoIdSet){
+        List<VideoViewCount> viewCount = videoDao.getVideoViewCountByVideoIds(videoIdSet);
+        return viewCount.stream()
+                .collect(Collectors.toMap(VideoViewCount::getVideoId,
+                        VideoViewCount::getCount));
+    }
+
+    //统计视频弹幕量
+    public Map<Long, Integer> batchCountVideoDanmu(Set<Long> videoIdSet){
+        List<VideoDanmuCount> danmuCount = videoDao.getVideoDanmuCountByVideoIds(videoIdSet);
+        return danmuCount.stream()
+                .collect(Collectors.toMap(VideoDanmuCount::getVideoId,
+                        VideoDanmuCount::getCount));
+    }
 }
 
 
