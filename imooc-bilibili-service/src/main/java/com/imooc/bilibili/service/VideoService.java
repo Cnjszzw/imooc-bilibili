@@ -1,8 +1,10 @@
 package com.imooc.bilibili.service;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.imooc.bilibili.dao.VideoDao;
 import com.imooc.bilibili.domain.*;
+import com.imooc.bilibili.domain.constant.UserMomentsConstant;
 import com.imooc.bilibili.domain.exception.ConditionException;
 import com.imooc.bilibili.service.util.FastDFSUtil;
 import com.imooc.bilibili.service.util.IpUtil;
@@ -34,6 +36,12 @@ public class VideoService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ContentService contentService;
+
+    @Autowired
+    private UserMomentsService userMomentsService;
+
 
     @Transactional
     public void addVideos(Video video) {
@@ -46,6 +54,22 @@ public class VideoService {
             tag.setCreateTime(new Date());
         }
         videoDao.batchAddVideoTags(tagList);
+        //新增：自动发布动态
+        try{
+            //添加动态内容
+            Content content = new Content();
+            content.setContentDetail(JSONObject.parseObject(JSONObject.toJSONString(video)));
+            contentService.addContent(content);
+            Long contentId = content.getId();
+            //添加用户发布视频动态
+            UserMoment moment = new UserMoment();
+            moment.setType(UserMomentsConstant.TYPE_VIDEO);
+            moment.setContentId(contentId);
+            moment.setUserId(video.getUserId());
+            userMomentsService.addUserMoments(moment);
+        }catch (Exception e){
+            throw new ConditionException("发布视频动态失败");
+        }
     }
 
     public PageResult<Video> pageListVideos(Integer start, Integer limit, String area) {

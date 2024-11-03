@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imooc.bilibili.dao.UserHistoryDao">
+
+    <select id="pageCountUserVideoHistory" parameterType="java.util.Map"
+            resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            t_video_view
+        where
+            userId = #{userId}
+    </select>
+
+    <select id="pageListUserVideoHistory" parameterType="java.util.Map"
+            resultType="com.imooc.bilibili.domain.UserVideoHistory">
+        select
+            vv.videoId,
+            vv.userId,
+            v.url,
+            v.thumbnail,
+            v.title,
+            v.description,
+            vv.createTime
+        from
+            t_video_view vv
+            left join t_video v on vv.videoId = v.id
+        where
+            vv.userId = #{userId}
+        order by vv.createTime desc
+        limit #{start}, #{limit}
+    </select>
+</mapper>

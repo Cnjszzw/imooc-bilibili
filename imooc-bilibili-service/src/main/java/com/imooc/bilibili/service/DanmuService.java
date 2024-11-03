@@ -44,7 +44,7 @@ public class DanmuService {
         String key = DANMU_KEY + videoId;
         String value = redisTemplate.opsForValue().get(key);
         List<Danmu> list;
-        if(!StringUtil.isNullOrEmpty(value)){
+        if(!(StringUtil.isNullOrEmpty(value) || value.equals("[]"))){
             list = JSONArray.parseArray(value, Danmu.class);
             if(!StringUtil.isNullOrEmpty(startTime)
                     && !StringUtil.isNullOrEmpty(endTime)){
