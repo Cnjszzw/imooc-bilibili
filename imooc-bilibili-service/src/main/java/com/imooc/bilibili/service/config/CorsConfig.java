@@ -17,9 +17,9 @@ public class CorsConfig implements WebMvcConfigurer {
          */
         registry.addMapping("/**")
                 // 是否发送Cookie
-                .allowCredentials(true)
+//                .allowCredentials(true)
                 // 放行哪些原始域
-                .allowedOrigins("http://localhost:7070","http://124.221.69.18:7070")
+                .allowedOrigins("*")
                 // 放行哪些请求方式
                 .allowedMethods("*")
                 // 放行哪些原始请求头部信息
