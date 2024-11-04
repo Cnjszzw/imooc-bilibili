@@ -70,7 +70,7 @@ public class UserFollowingService {
         Set<Long> userFollowingsIds = userFollowings.stream().map(UserFollowing::getFollowingId).collect(Collectors.toSet());
         //2.查询出所有的关注用户的信息
         if(userFollowingsIds == null || userFollowingsIds.size() <= 0){
-            throw new ConditionException("关注用户列表为空");
+            return new ArrayList<>();
         }
         List<UserInfo> userInfos = userService.getUserInfoByIds(userFollowingsIds);
         for (UserFollowing userFollowing : userFollowings) {
