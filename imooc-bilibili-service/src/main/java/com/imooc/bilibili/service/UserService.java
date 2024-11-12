@@ -6,6 +6,8 @@ import com.imooc.bilibili.dao.UserDao;
 import com.imooc.bilibili.domain.*;
 import com.imooc.bilibili.domain.constant.UserConstant;
 import com.imooc.bilibili.domain.exception.ConditionException;
+import com.imooc.bilibili.service.strategy.UserGranter;
+import com.imooc.bilibili.service.strategy.UserLoginFactory;
 import com.imooc.bilibili.service.util.MD5Util;
 import com.imooc.bilibili.service.util.RSAUtil;
 import com.imooc.bilibili.service.util.TokenUtil;
@@ -29,6 +31,11 @@ public class UserService {
 
     @Autowired
     private  UserAuthService userAuthService;
+
+    @Autowired
+    private UserLoginFactory uerLoginFactory;
+    @Autowired
+    private UserLoginFactory userLoginFactory;
 
     public JsonResponse<String> addUser(User user) {
         //1.对传入的user进行校验，主要判断手机号的格式，并且判断没有注册过
@@ -70,29 +77,39 @@ public class UserService {
 
     }
 
-    public String login(User user) throws Exception {
-        //1.对用户校验：校验手机号码，校验是否存在用户
-        String phone = (user.getPhone() == null ? "" : user.getPhone());
-        String email = (user.getEmail() == null ? "" : user.getEmail());
-        if(StringUtils.isNullOrEmpty(phone) && StringUtils.isNullOrEmpty(email)){
-            throw new ConditionException("参数异常，手机号和邮箱参数都错误");
-        }
-        User dbUser = userDao.getUserByPhoneOrEmail(phone,email);
-        if (dbUser == null) {
-            throw new ConditionException("该手机号/邮箱未注册");
-        }
-        String password = user.getPassword();
-        try {
-            String rawPassword = RSAUtil.decrypt(password);
-            String md5PassWord = MD5Util.sign(rawPassword, dbUser.getSalt(), "UTF-8");
-            if(!md5PassWord.equals(dbUser.getPassword())){
-                throw new ConditionException("密码错误");
-            }
-        } catch (Exception e) {
-            throw new ConditionException("解密错误");
-        }
-        return TokenUtil.generateToken(dbUser.getId());
+//    public String login(User user) throws Exception {
+//        //1.对用户校验：校验手机号码，校验是否存在用户
+//        String phone = (user.getPhone() == null ? "" : user.getPhone());
+//        String email = (user.getEmail() == null ? "" : user.getEmail());
+//        if(StringUtils.isNullOrEmpty(phone) && StringUtils.isNullOrEmpty(email)){
+//            throw new ConditionException("参数异常，手机号和邮箱参数都错误");
+//        }
+//        User dbUser = userDao.getUserByPhoneOrEmail(phone,email);
+//        if (dbUser == null) {
+//            throw new ConditionException("该手机号/邮箱未注册");
+//        }
+//        String password = user.getPassword();
+//        try {
+//            String rawPassword = RSAUtil.decrypt(password);
+//            String md5PassWord = MD5Util.sign(rawPassword, dbUser.getSalt(), "UTF-8");
+//            if(!md5PassWord.equals(dbUser.getPassword())){
+//                throw new ConditionException("密码错误");
+//            }
+//        } catch (Exception e) {
+//            throw new ConditionException("解密错误");
+//        }
+//        return TokenUtil.generateToken(dbUser.getId());
+//
+//    }
 
+    //利用了策略工厂模式的登录接口
+    public String login(User user) throws Exception {
+        UserGranter granter = userLoginFactory.getGranter(user.getAccountType());
+        if(granter == null){
+            throw new ConditionException("不支持该登录方式");
+        }
+        String token = granter.login(user);
+        return token;
     }
 
     public User getUserInfo(Long userId) {
