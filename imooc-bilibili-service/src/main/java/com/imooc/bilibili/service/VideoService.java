@@ -6,6 +6,7 @@ import com.imooc.bilibili.dao.VideoDao;
 import com.imooc.bilibili.domain.*;
 import com.imooc.bilibili.domain.constant.UserMomentsConstant;
 import com.imooc.bilibili.domain.exception.ConditionException;
+import com.imooc.bilibili.service.config.ThreadPoolConfig;
 import com.imooc.bilibili.service.util.FastDFSUtil;
 import com.imooc.bilibili.service.util.IpUtil;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -18,6 +19,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +46,9 @@ public class VideoService {
 
     @Autowired
     private UserMomentsService userMomentsService;
+
+    @Autowired
+    ThreadPoolConfig threadPoolConfig;
 
 
     @Transactional
@@ -405,6 +413,45 @@ public class VideoService {
                 .collect(Collectors.toMap(VideoDanmuCount::getVideoId,
                         VideoDanmuCount::getCount));
     }
+
+
+    //利用线程池，采用多线程技术去获取一键三连的数据
+    public Map<String, Object> getTripleClicks(Long videoId, Long userId) throws  Exception {
+
+        ThreadPoolExecutor threadPool = ThreadPoolConfig.getThreadPool();
+
+        Future<Object> likeFuture = threadPool.submit(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                Map<String, Object> likeVideo = getLikeVideo(videoId, userId);
+                return likeVideo;
+            }
+        });
+
+        Future<Object> coinFuture = threadPool.submit(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                Map<String, Object> videoCoins = getVideoCoins(videoId, userId);
+                return videoCoins;
+            }
+        });
+
+        Future<Object> collectionFuture = threadPool.submit(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                Map<String, Object> videoCoins = getVideoCollectionCounts(videoId, userId);
+                return videoCoins;
+            }
+        });
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("likeFuture",likeFuture.get());
+        map.put("coinFuture",coinFuture.get());
+        map.put("collectionFuture",collectionFuture.get());
+
+        return map;
+    }
+
 }
 
 

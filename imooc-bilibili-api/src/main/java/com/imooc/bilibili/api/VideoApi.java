@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 public class VideoApi {
@@ -242,6 +243,18 @@ public class VideoApi {
     public JsonResponse<Integer> getVideoViewCounts(@RequestParam Long videoId){
         Integer count = videoService.getVideoViewCounts(videoId);
         return new JsonResponse<>(count);
+    }
+
+
+    @GetMapping("video-triple-clicks")
+    public JsonResponse<Map<String,Object>> getTripleClicks(@RequestParam Long videoId) throws Exception {
+        Long userId = null;
+        try{
+            userId = userSupport.getCurrentUserId();
+        }catch(Exception ignore){}
+        Map<String, Object> tripleClicks = videoService.getTripleClicks(videoId, userId);
+        return new JsonResponse<>(tripleClicks);
+
     }
 
 

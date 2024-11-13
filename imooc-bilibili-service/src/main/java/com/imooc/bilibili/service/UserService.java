@@ -33,8 +33,6 @@ public class UserService {
     private  UserAuthService userAuthService;
 
     @Autowired
-    private UserLoginFactory uerLoginFactory;
-    @Autowired
     private UserLoginFactory userLoginFactory;
 
     public JsonResponse<String> addUser(User user) {
