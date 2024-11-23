@@ -9,9 +9,13 @@
 #### 模块划分
 下方是整个项目的功能模块，同样我负责了其中的（1）通用功能模块（2）用户服务模块（3）核心功能模块（4）部分前端的编写（主要是抄和修改）
 ![image](https://github.com/user-attachments/assets/5f78bdf2-7ca3-46f5-bbd5-df8f2b2a6b30)
-
-
-
+#### 项目的个人优化
+（1）设计模式，通过自己学到的策略工厂模式，对这个登录的功能进行了重构
+https://github.com/Cnjszzw/imooc-bilibili/commit/d990cc714535dd9e14504746fe35106a431bb56f
+（2）线程池，原来的项目没用到这个线程池技术，我通过对这个项目的分析，找到了适合利用线程池的地方，并进行了改造，最后提升了接口响应速度
+https://github.com/Cnjszzw/imooc-bilibili/commit/f10361b3b12b5334c1b0eef5dfd4018f3ad30025#diff-89bb0681bc7b37fcb05ba70f78bd28ff8c7da4b91eff65f1fd27f1f05413cd08
+（3）跨域问题的优化，通过修改后端代码的方式，来解决了这种跨域问题
+https://github.com/Cnjszzw/imooc-bilibili/commit/61e3ca309324317f08ee327360956907a01b7ed1
 #### BUG清单:
 (1):快速点击 页面的收藏视频，出现了收藏数量异常增加和减少的情况，原因是
 快速点击的时候，有时候会连续多次请求这个收藏或者取消收藏的接口，后端这边
