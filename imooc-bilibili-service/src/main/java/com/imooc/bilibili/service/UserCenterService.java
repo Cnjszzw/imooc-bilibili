@@ -5,7 +5,6 @@ import com.imooc.bilibili.domain.*;
 import com.imooc.bilibili.domain.constant.UserCollectionGroupConstant;
 import com.imooc.bilibili.domain.exception.ConditionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,9 +21,6 @@ public class UserCenterService {
 
     @Autowired
     private VideoService videoService;
-
-    @Value("${fdfs.http.storage-addr}")
-    private String fastdfsUrl;
 
     public Map<String, Integer> getUserCenterVideoAreas(Long userId) {
         List<VideoArea> videoAreas = userCenterDao.getUserCenterVideoAreas(userId);
@@ -43,8 +39,6 @@ public class UserCenterService {
         List<Video> list = new ArrayList<>();
         if(total > 0){
             list = userCenterDao.pageListUserCenterVideos(params);
-            //视频封面相对路径转为绝对路径
-            list.forEach(video -> video.setThumbnail(fastdfsUrl + video.getThumbnail()));
             //计算播放量和弹幕量
             list = videoService.getVideoCount(list);
         }
@@ -70,7 +64,6 @@ public class UserCenterService {
                 Set<Long> videoIdSet = list.stream().map(VideoCollection :: getVideoId)
                         .collect(Collectors.toSet());
                 List<Video> videoList = userCenterDao.getVideoInfoByIds(videoIdSet);
-                videoList.forEach(video -> video.setThumbnail(fastdfsUrl + video.getThumbnail()));
                 list.forEach(item -> videoList.forEach(video -> {
                     if(video.getId().equals(item.getVideoId())){
                         item.setVideoInfo(video);

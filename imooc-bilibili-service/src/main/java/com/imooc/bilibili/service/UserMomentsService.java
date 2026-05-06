@@ -9,7 +9,6 @@ import com.imooc.bilibili.domain.constant.UserMomentsConstant;
 import com.imooc.bilibili.service.util.RocketMQUtil;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -36,9 +35,6 @@ public class UserMomentsService {
 
     @Autowired
     private UserService userService;
-
-    @Value("${fdfs.http.storage-addr}")
-    private String fastdfsUrl;
 
     public void addUserMoments(UserMoment userMoment) throws Exception {
         userMoment.setCreateTime(new Date());
@@ -91,7 +87,7 @@ public class UserMomentsService {
         list.forEach(moment -> {
             Content content = moment.getContent();
             ImgContent contentDetail = content.getContentDetail().toJavaObject(ImgContent.class);
-            contentDetail.setImg(fastdfsUrl + contentDetail.getImg());
+            contentDetail.setImg(contentDetail.getImg());
             content.setContentDetail(JSONObject.parseObject(JSONObject.toJSONString(contentDetail)));
             moment.setContent(content);
         });
@@ -103,7 +99,6 @@ public class UserMomentsService {
                 .map(content -> content.getContentDetail().toJavaObject(Video.class))
                 .collect(Collectors.toList());
         List<Video> newVideoList = videoService.getVideoCount(videoList);
-        newVideoList.forEach(video -> video.setThumbnail(fastdfsUrl + video.getThumbnail()));
         list.forEach(moment -> newVideoList.forEach(video -> {
             if (video.getId().equals(moment.getContent().getContentDetail().getLong("id"))) {
                 JSONObject contentDetail = JSONObject.parseObject(JSONObject.toJSONString(video));

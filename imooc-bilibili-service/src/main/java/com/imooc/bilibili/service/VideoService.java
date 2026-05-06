@@ -7,10 +7,12 @@ import com.imooc.bilibili.domain.*;
 import com.imooc.bilibili.domain.constant.UserMomentsConstant;
 import com.imooc.bilibili.domain.exception.ConditionException;
 import com.imooc.bilibili.service.config.ThreadPoolConfig;
-import com.imooc.bilibili.service.util.FastDFSUtil;
 import com.imooc.bilibili.service.util.IpUtil;
 import eu.bitwalker.useragentutils.UserAgent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,12 +30,15 @@ import java.util.stream.Collectors;
 @Service
 public class VideoService {
 
+    private static final Logger logger = LoggerFactory.getLogger(VideoService.class);
+
 
     @Autowired
     private VideoDao videoDao;
 
     @Autowired
-    private FastDFSUtil fastDFSUtil;
+    @Qualifier("minioStorageService")
+    private StorageService storageService;
 
     @Autowired
     private UserCoinService userCoinService;
@@ -97,13 +102,14 @@ public class VideoService {
                                         HttpServletResponse response,
                                         String url) {
         try {
-            fastDFSUtil.viewVideoOnlineBySlices(request, response, url);
-        } catch (Exception ignored) {
+            storageService.viewVideoOnlineBySlices(request, response, url);
+        } catch (Exception e) {
+            logger.error("视频播放失败: url={}", url, e);
         }
     }
 
     public void viewVideoOnlineBySlicesSimple(HttpServletRequest request, HttpServletResponse response, String url) throws Exception {
-        fastDFSUtil.viewVideoOnlineBySlicesSimple(request, response, url);
+        storageService.viewVideoOnlineBySlices(request, response, url);
     }
 
     public void addLikeVideo(Long videoId, Long userId) {
@@ -377,7 +383,7 @@ public class VideoService {
     }
 
     public void viewImage(HttpServletRequest request, HttpServletResponse response, String url) throws Exception {
-        fastDFSUtil.viewImage(request, response, url);
+        storageService.viewImage(request, response, url);
     }
 
     public List<Video> getVideoCount(List<Video> videoList){
