@@ -91,6 +91,8 @@ public class VideoService {
             List<VideoTag> tagList = videoDao.queryVideoTagsByVideoId(video.getId());
             video.setVideoTagList(tagList);
         }
+        //填充播放量和弹幕量
+        videoList = getVideoCount(videoList);
         PageResult<Video> pageResult = new PageResult<>();
         pageResult.setList(videoList);
         Integer totalNUm = videoDao.queryVideosTotalNum(area);
@@ -213,7 +215,7 @@ public class VideoService {
         }
         //判断用户硬币数量是否大于等于要投币的数量
         Integer userCoinAmout = userCoinService.getUserCoinAmount(userId);
-        if (userCoinAmout < videoCoins.getAmount()) {
+        if (userCoinAmout == null || userCoinAmout < videoCoins.getAmount()) {
             throw new ConditionException("硬币不足");
         }
         //判断用户是否投币过
