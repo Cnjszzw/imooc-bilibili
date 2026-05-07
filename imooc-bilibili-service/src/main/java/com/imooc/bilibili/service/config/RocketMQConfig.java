@@ -15,6 +15,8 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.MessageExt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +29,8 @@ import java.util.List;
 
 @Configuration
 public class RocketMQConfig {
+
+    private final Logger logger =  LoggerFactory.getLogger(this.getClass());
 
 
     @Value("${rocketmq.name.server.address}")
@@ -114,6 +118,7 @@ public class RocketMQConfig {
                 WebSocketService webSocketService = WebSocketService.WEBSOCKET_MAP.get(sessionId);
                 if(webSocketService.getSession().isOpen()){
                     try {
+                        logger.info("DM弹幕：向("+webSocketService.getUserId().toString()+")发送弹幕");
                         webSocketService.sendMessage(message);
                     } catch (IOException e) {
                         e.printStackTrace();

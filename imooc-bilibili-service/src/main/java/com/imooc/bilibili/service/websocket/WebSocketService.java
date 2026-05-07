@@ -39,6 +39,14 @@ public class WebSocketService {
 
     private String sessionId;
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     private Long userId;
 
     private static ApplicationContext APPLICATION_CONTEXT;
@@ -86,6 +94,15 @@ public class WebSocketService {
                 //群发消息
                 for(Map.Entry<String, WebSocketService> entry : WEBSOCKET_MAP.entrySet()){
                     WebSocketService webSocketService = entry.getValue();
+                    // 排除发送者自己，前端已本地展示，避免重复
+                    if(this.sessionId.equals(webSocketService.getSessionId())){
+                        continue;
+                    }
+                    //1.如果直接发弹幕
+                    //if(webSocketService.session.isOpen()){
+                    //    webSocketService.sendMessage(message);
+                    //}
+                    //2.借助 MQ 发弹幕
                     DefaultMQProducer danmusProducer = (DefaultMQProducer)APPLICATION_CONTEXT.getBean("danmusProducer");
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("message", message);
