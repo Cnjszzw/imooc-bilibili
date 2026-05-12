@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,14 +29,14 @@ public class SearchContentService {
     }
 
     public Page<Video> pageListSearchVideos(String keyword,Integer pageSize,
-                                            Integer pageNo, String searchType) {
+                                            Integer pageNo, String searchType) throws IOException {
         Page<Video> result = elasticSearchService.pageListSearchVideos(keyword, pageSize,
                                                                 pageNo-1, searchType);
         return result;
     }
 
     public Page<UserInfo> pageListSearchUsers(String keyword, Integer pageSize,
-                                              Integer pageNo, String searchType) {
+                                              Integer pageNo, String searchType) throws IOException {
         Page<UserInfo> result = elasticSearchService.pageListSearchUsers(keyword, pageSize,
                                                                 pageNo-1, searchType);
         return result;

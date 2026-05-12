@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -29,7 +30,7 @@ public class SearchContentApi {
     public JsonResponse<Page<Video>> pageListSearchVideos(@RequestParam String keyword,
                                                           @RequestParam Integer pageSize,
                                                           @RequestParam Integer pageNo,
-                                                          @RequestParam String searchType){
+                                                          @RequestParam String searchType) throws IOException {
         Page<Video> result = searchContentService.pageListSearchVideos(keyword, pageSize,
                                                                         pageNo, searchType);
         return new JsonResponse<>(result);
@@ -39,7 +40,7 @@ public class SearchContentApi {
     public JsonResponse<Page<UserInfo>> pageListSearchUsers(@RequestParam String keyword,
                                                             @RequestParam Integer pageSize,
                                                             @RequestParam Integer pageNo,
-                                                            @RequestParam String searchType){
+                                                            @RequestParam String searchType) throws IOException {
         Page<UserInfo> result = searchContentService.pageListSearchUsers(keyword, pageSize,
                 pageNo, searchType);
         return new JsonResponse<>(result);
