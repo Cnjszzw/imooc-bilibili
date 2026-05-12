@@ -236,7 +236,7 @@ public class VideoApi {
             videoService.addVideoView(videoView, request);
         }
         //同步更新视频播放量到Elasticsearch
-        //elasticSearchService.updateVideoViewCount(videoView.getVideoId());
+        elasticSearchService.updateVideoViewCount(videoView.getVideoId());
         return JsonResponse.success();
     }
 

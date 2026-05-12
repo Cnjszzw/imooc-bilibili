@@ -116,12 +116,12 @@ public class UserInfo {
     public void setFollowed(Boolean followed) {
         this.followed = followed;
     }
-//
-//    public Integer getFanCount() {
-//        return fanCount;
-//    }
-//
-//    public void setFanCount(Integer fanCount) {
-//        this.fanCount = fanCount;
-//    }
+
+    public Integer getFanCount() {
+        return fanCount;
+    }
+
+    public void setFanCount(Integer fanCount) {
+        this.fanCount = fanCount;
+    }
 }
