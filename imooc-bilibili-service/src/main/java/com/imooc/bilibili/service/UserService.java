@@ -35,6 +35,9 @@ public class UserService {
     @Autowired
     private UserLoginFactory userLoginFactory;
 
+    @Autowired
+    private ElasticSearchService elasticSearchService;
+
     public JsonResponse<String> addUser(User user) {
         //1.对传入的user进行校验，主要判断手机号的格式，并且判断没有注册过
         String phone = user.getPhone();
@@ -70,9 +73,9 @@ public class UserService {
         userDao.addUserInfo(userInfo);
         //添加用户默认权限角色
         userAuthService.addUserDefaultRole(user.getId());
+        //同步用户信息数据到es
+        elasticSearchService.addUserInfo(userInfo);
         return JsonResponse.success();
-
-
     }
 
 //    public String login(User user) throws Exception {

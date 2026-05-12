@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import com.imooc.bilibili.service.ElasticSearchService;
 
 @RestController
 public class VideoApi {
@@ -24,6 +25,9 @@ public class VideoApi {
     @Autowired
     private VideoService videoService;
 
+    @Autowired
+    private ElasticSearchService elasticSearchService;
+
 
     /**
      * 视频投稿接口
@@ -33,9 +37,9 @@ public class VideoApi {
         Long userId = userSupport.getCurrentUserId();
         video.setUserId(userId);
         videoService.addVideos(video);
+        //在es中添加一条视频数据
+        elasticSearchService.addVideo(video);
         return JsonResponse.success();
-
-
     }
 
     /**
@@ -256,50 +260,4 @@ public class VideoApi {
         return new JsonResponse<>(tripleClicks);
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
