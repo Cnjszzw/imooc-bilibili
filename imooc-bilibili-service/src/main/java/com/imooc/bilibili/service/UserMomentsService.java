@@ -80,9 +80,32 @@ public class UserMomentsService {
     }
 
     public List<UserMoment> getUserSubscribedMoments(Long userId) {
-        String key = "subscribed-" + userId;
-        String listStr = redisTemplate.opsForValue().get(key);
-        return JSONArray.parseArray(listStr, UserMoment.class);
+        List<UserMoment> allMoments = new ArrayList<>();
+
+        // ① 推模式收件箱：普通用户的动态
+        String inboxKey = "subscribed-" + userId;
+        String inboxStr = redisTemplate.opsForValue().get(inboxKey);
+        List<UserMoment> pushList = JSONArray.parseArray(inboxStr, UserMoment.class);
+        if (pushList != null) {
+            allMoments.addAll(pushList);
+        }
+
+        // ② 拉模式：遍历关注的大 V，读取发件箱
+        Set<Long> followingIds = userFollowingService.getUserFollowingIds(userId);
+        for (Long followingId : followingIds) {
+            String outboxKey = "outbox-" + followingId;
+            List<String> outboxItems = redisTemplate.opsForList().range(outboxKey, 0, -1);
+            if (outboxItems != null && !outboxItems.isEmpty()) {
+                for (String item : outboxItems) {
+                    UserMoment moment = JSONObject.parseObject(item, UserMoment.class);
+                    allMoments.add(moment);
+                }
+            }
+        }
+
+        // ③ 按创建时间倒序排列
+        allMoments.sort((a, b) -> b.getCreateTime().compareTo(a.getCreateTime()));
+        return allMoments;
     }
 
     public PageResult<UserMoment> pageListMoments(Integer size, Integer no,

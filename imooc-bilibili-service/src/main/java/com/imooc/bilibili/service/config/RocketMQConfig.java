@@ -65,33 +65,51 @@ public class RocketMQConfig {
                     return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                 }
                 long consumeStart = System.currentTimeMillis();
-                System.out.println("[V2消费者] 开始消费 " + new Date(consumeStart));
+                System.out.println("[动态推送] 开始消费 " + new Date(consumeStart));
 
                 String bodyStr = new String(msg.getBody());
                 UserMoment userMoment = JSONObject.toJavaObject(JSONObject.parseObject(bodyStr), UserMoment.class);
                 Long userId = userMoment.getUserId();
 
+                // 查询粉丝列表（仅查 ID，不做用户信息和互关匹配）
                 long dbStart = System.currentTimeMillis();
                 List<UserFollowing>fanList = userFollowingService.getUserFansSimple(userId);
                 long dbCost = System.currentTimeMillis() - dbStart;
 
+                // 推拉结合：临界点 10w 粉丝
+                // push 成本 = 粉丝数 × Redis SET（10w 约 7s），pull = 1 次 LPUSH（< 1ms）
+                // 10w 以上大 V 占比 < 1%，走拉模式消除写扩散
+                int PUSH_PULL_THRESHOLD = 100000;
+                long fanoutCost;
+                String mode;
+
                 long fanoutStart = System.currentTimeMillis();
-                for(UserFollowing fan : fanList){
-                    String key = "subscribed-" + fan.getUserId();
-                    String subscribedListStr = redisTemplate.opsForValue().get(key);
-                    List<UserMoment> subscribedList;
-                    if(StringUtil.isNullOrEmpty(subscribedListStr)){
-                        subscribedList = new ArrayList<>();
-                    }else{
-                        subscribedList = JSONArray.parseArray(subscribedListStr, UserMoment.class);
+                if (fanList.size() < PUSH_PULL_THRESHOLD) {
+                    // 推模式(push)：遍历粉丝写入各自收件箱 subscribed-{fanId}
+                    for(UserFollowing fan : fanList){
+                        String key = "subscribed-" + fan.getUserId();
+                        String subscribedListStr = redisTemplate.opsForValue().get(key);
+                        List<UserMoment> subscribedList;
+                        if(StringUtil.isNullOrEmpty(subscribedListStr)){
+                            subscribedList = new ArrayList<>();
+                        }else{
+                            subscribedList = JSONArray.parseArray(subscribedListStr, UserMoment.class);
+                        }
+                        subscribedList.add(userMoment);
+                        redisTemplate.opsForValue().set(key, JSONObject.toJSONString(subscribedList));
                     }
-                    subscribedList.add(userMoment);
-                    redisTemplate.opsForValue().set(key, JSONObject.toJSONString(subscribedList));
+                    mode = "push";
+                } else {
+                    // 拉模式(pull)：大 V 只写自己的发件箱 outbox-{userId}，粉丝读时主动拉取
+                    String outboxKey = "outbox-" + userId;
+                    redisTemplate.opsForList().leftPush(outboxKey, JSONObject.toJSONString(userMoment));
+                    redisTemplate.opsForList().trim(outboxKey, 0, 999);
+                    mode = "pull";
                 }
-                long fanoutCost = System.currentTimeMillis() - fanoutStart;
+                fanoutCost = System.currentTimeMillis() - fanoutStart;
                 long totalCost = System.currentTimeMillis() - consumeStart;
 
-                System.out.println("[V2消费者] 消费完成 " + new Date() + " | 发布者=" + userId + " | 查粉丝=" + dbCost + "ms | 粉丝数=" + fanList.size() + " | fanout=" + fanoutCost + "ms | 总耗时=" + totalCost + "ms");
+                System.out.println("[V2消费者] 消费完成 " + new Date() + " | 发布者=" + userId + " | 查粉丝=" + dbCost + "ms | 粉丝数=" + fanList.size() + " | " + mode + " | fanout=" + fanoutCost + "ms | 总耗时=" + totalCost + "ms");
 
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
