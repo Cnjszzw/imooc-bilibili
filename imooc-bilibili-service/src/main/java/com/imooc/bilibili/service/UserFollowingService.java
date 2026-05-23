@@ -98,6 +98,12 @@ public class UserFollowingService {
         return followingGroups;
     }
 
+    //只需要查询粉丝id，不需要详情和互相关注的信息，可以用这个接口，效率高很多
+    public List<UserFollowing> getUserFansSimple(Long userId) {
+        List<UserFollowing> userFanFollowings = userFollowingDao.getUserFanFollowings(userId);
+        return userFanFollowings;
+    }
+
     //获取用户粉丝列表(包含互相关注的功能)
     //第一步：获取当前用户的粉丝列表
     //第二步骤：根据粉丝的用户id查询基本信息

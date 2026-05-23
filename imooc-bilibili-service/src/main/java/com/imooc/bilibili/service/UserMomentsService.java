@@ -36,12 +36,47 @@ public class UserMomentsService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserFollowingService userFollowingService;
+
     public void addUserMoments(UserMoment userMoment) throws Exception {
         userMoment.setCreateTime(new Date());
         userMomentsDao.addUserMoments(userMoment);
         DefaultMQProducer producer = (DefaultMQProducer) applicationContext.getBean("momentsProducer");
         Message msg = new Message(UserMomentsConstant.TOPIC_MOMENTS, JSONObject.toJSONString(userMoment).getBytes(StandardCharsets.UTF_8));
         RocketMQUtil.syncSendMsg(producer, msg);
+    }
+
+    /**
+     * V1 同步推送版本：发布动态后直接遍历粉丝写 Redis，不经过 MQ。
+     * 用于性能对比测试——测量同步推送的完整耗时，拆解 DB 和 Redis 分别用时。
+     *
+     * @return long[3] {粉丝数, DB耗时ms, Redis fanout耗时ms}
+     */
+    public long[] addUserMomentsV1(UserMoment userMoment) {
+        userMoment.setCreateTime(new Date());
+        userMomentsDao.addUserMoments(userMoment);
+
+        long dbStart = System.currentTimeMillis();
+        List<UserFollowing> fanList = userFollowingService.getUserFansSimple(userMoment.getUserId());
+        long dbCost = System.currentTimeMillis() - dbStart;
+
+        long fanoutStart = System.currentTimeMillis();
+        for (UserFollowing fan : fanList) {
+            String key = "subscribed-" + fan.getUserId();
+            String listStr = redisTemplate.opsForValue().get(key);
+            List<UserMoment> list;
+            if (org.springframework.util.StringUtils.isEmpty(listStr)) {
+                list = new ArrayList<>();
+            } else {
+                list = JSONArray.parseArray(listStr, UserMoment.class);
+            }
+            list.add(userMoment);
+            redisTemplate.opsForValue().set(key, JSONObject.toJSONString(list));
+        }
+        long fanoutCost = System.currentTimeMillis() - fanoutStart;
+
+        return new long[]{fanList.size(), dbCost, fanoutCost};
     }
 
     public List<UserMoment> getUserSubscribedMoments(Long userId) {

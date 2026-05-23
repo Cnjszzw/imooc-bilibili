@@ -25,6 +25,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Configuration
@@ -63,10 +64,18 @@ public class RocketMQConfig {
                 if(msg == null){
                     return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                 }
+                long consumeStart = System.currentTimeMillis();
+                System.out.println("[V2消费者] 开始消费 " + new Date(consumeStart));
+
                 String bodyStr = new String(msg.getBody());
                 UserMoment userMoment = JSONObject.toJavaObject(JSONObject.parseObject(bodyStr), UserMoment.class);
                 Long userId = userMoment.getUserId();
-                List<UserFollowing>fanList = userFollowingService.getUserFans(userId);
+
+                long dbStart = System.currentTimeMillis();
+                List<UserFollowing>fanList = userFollowingService.getUserFansSimple(userId);
+                long dbCost = System.currentTimeMillis() - dbStart;
+
+                long fanoutStart = System.currentTimeMillis();
                 for(UserFollowing fan : fanList){
                     String key = "subscribed-" + fan.getUserId();
                     String subscribedListStr = redisTemplate.opsForValue().get(key);
@@ -79,6 +88,11 @@ public class RocketMQConfig {
                     subscribedList.add(userMoment);
                     redisTemplate.opsForValue().set(key, JSONObject.toJSONString(subscribedList));
                 }
+                long fanoutCost = System.currentTimeMillis() - fanoutStart;
+                long totalCost = System.currentTimeMillis() - consumeStart;
+
+                System.out.println("[V2消费者] 消费完成 " + new Date() + " | 发布者=" + userId + " | 查粉丝=" + dbCost + "ms | 粉丝数=" + fanList.size() + " | fanout=" + fanoutCost + "ms | 总耗时=" + totalCost + "ms");
+
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         });
