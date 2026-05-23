@@ -67,7 +67,7 @@ SpringBoot + Vue 仿 Bilibili 弹幕视频网站，实现用户体系、视频�
 | 100,000 | 7,307ms | **~250ms** |
 | 1,000,000 | 72s+ | **~2ms** |
 
-> 详细测试方法与数据见 [`doc/`](doc/) 目录。
+> 详细测试方法与数据见 [bilibili-doc](https://github.com/Cnjszzw/bilibili-doc)。
 
 ### 3. 弹幕系统：WebSocket + MQ 异步削峰
 
@@ -136,7 +136,7 @@ npm run serve
 
 ## 历史文档
 
-- [旧版 README（含 WebSocket 实现细节 Q&A）](doc/README-history.md)
-- [动态发布 V1：同步推送性能测试](doc/动态发布-V1同步推送性能测试.md)
-- [动态发布 V2：MQ 异步推送性能测试](doc/动态发布-V2MQ异步推送性能测试.md)
-- [动态发布 V3：推拉结合](doc/动态发布-V3推拉结合.md)
+- [旧版 README（含 WebSocket 实现细节 Q&A）](https://github.com/Cnjszzw/bilibili-doc/blob/main/README-history.md)
+- [动态发布 V1：同步推送性能测试](https://github.com/Cnjszzw/bilibili-doc/blob/main/动态发布-V1同步推送性能测试.md)
+- [动态发布 V2：MQ 异步推送性能测试](https://github.com/Cnjszzw/bilibili-doc/blob/main/动态发布-V2MQ异步推送性能测试.md)
+- [动态发布 V3：推拉结合](https://github.com/Cnjszzw/bilibili-doc/blob/main/动态发布-V3推拉结合.md)
