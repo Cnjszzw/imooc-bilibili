@@ -114,11 +114,11 @@ public class UserApi {
     /**
      * 通过 userId 查询单个用户信息（含 UserInfo）
      * 供 content-service 等内部服务 Feign 调用，不走 Gateway 用户鉴权
+     * 直接返回实体不套 JsonResponse，避免 Feign 反序列化时泛型丢失
      */
     @GetMapping("/user/info")
-    public JsonResponse<User> getUserInfo(@RequestParam Long userId) {
-        User user = userService.getUserInfo(userId);
-        return new JsonResponse<>(user);
+    public User getUserInfo(@RequestParam Long userId) {
+        return userService.getUserInfo(userId);
     }
 
     /**
@@ -126,9 +126,8 @@ public class UserApi {
      * 供 content-service 等内部服务 Feign 调用
      */
     @GetMapping("/user/infos")
-    public JsonResponse<List<UserInfo>> getUserInfoByUserIds(@RequestParam Set<Long> userIds) {
-        List<UserInfo> list = userService.getUserInfoByUserIds(userIds);
-        return new JsonResponse<>(list);
+    public List<UserInfo> getUserInfoByUserIds(@RequestParam Set<Long> userIds) {
+        return userService.getUserInfoByUserIds(userIds);
     }
 
 }
