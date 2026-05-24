@@ -3,6 +3,7 @@ package com.imooc.bilibili.service.config;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.imooc.bilibili.dao.UserMomentsDao;
 import com.imooc.bilibili.domain.UserFollowing;
 import com.imooc.bilibili.domain.UserMoment;
 import com.imooc.bilibili.domain.constant.UserMomentsConstant;
@@ -42,6 +43,9 @@ public class RocketMQConfig {
 
     @Autowired
     private UserFollowingService userFollowingService;
+
+    @Autowired
+    private UserMomentsDao userMomentsDao;
 
 
     @Bean("momentsProducer")
@@ -113,6 +117,32 @@ public class RocketMQConfig {
 
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
+        });
+        consumer.start();
+        return consumer;
+    }
+
+    /**
+     * 动态持久化消费者（Phase 2 新增）
+     * 接收 content-service 的 RocketMQ 事务消息，将动态写入 DB
+     * 与 momentsConsumer 分属不同消费组，各自独立消费同一条消息
+     */
+    @Bean("momentPersistConsumer")
+    public DefaultMQPushConsumer momentPersistConsumer() throws Exception {
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("MomentsPersistGroup");
+        consumer.setNamesrvAddr(nameServerAddr);
+        consumer.subscribe(UserMomentsConstant.TOPIC_MOMENTS, "*");
+        consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
+            MessageExt msg = msgs.get(0);
+            if (msg == null) {
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            }
+            String bodyStr = new String(msg.getBody());
+            UserMoment userMoment = JSONObject.toJavaObject(JSONObject.parseObject(bodyStr), UserMoment.class);
+            userMoment.setCreateTime(new Date());
+            userMomentsDao.addUserMoments(userMoment);
+            logger.info("动态持久化完成: userId={}, type={}", userMoment.getUserId(), userMoment.getType());
+            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         });
         consumer.start();
         return consumer;
