@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 public class UserApi {
@@ -105,6 +107,28 @@ public class UserApi {
         String refreshToken = request.getHeader("refreshToken");
         String accessToken = userService.getrefreshedAccessToken(refreshToken);
         return JsonResponse.success(accessToken);
+    }
+
+    // ===== 微服务内部调用接口（供其他服务 Feign 调用）=====
+
+    /**
+     * 通过 userId 查询单个用户信息（含 UserInfo）
+     * 供 content-service 等内部服务 Feign 调用，不走 Gateway 用户鉴权
+     */
+    @GetMapping("/user/info")
+    public JsonResponse<User> getUserInfo(@RequestParam Long userId) {
+        User user = userService.getUserInfo(userId);
+        return new JsonResponse<>(user);
+    }
+
+    /**
+     * 批量查询用户信息
+     * 供 content-service 等内部服务 Feign 调用
+     */
+    @GetMapping("/user/infos")
+    public JsonResponse<List<UserInfo>> getUserInfoByUserIds(@RequestParam Set<Long> userIds) {
+        List<UserInfo> list = userService.getUserInfoByUserIds(userIds);
+        return new JsonResponse<>(list);
     }
 
 }
